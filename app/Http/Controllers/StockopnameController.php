@@ -105,10 +105,12 @@ class StockopnameController extends Controller
     }
 
     public function approve(Stockopname $stockopname)
-    {
-        if ($stockopname->status !== 'pending_approval') {
-            return back()->with('error', 'Status stock opname tidak valid.');
-        }
+        {
+            abort_unless(auth()->user()->can('stockopname.approve'), 403);
+
+            if ($stockopname->status !== 'pending_approval') {
+                return back()->with('error', 'Status stock opname tidak valid.');
+            }
 
         DB::beginTransaction();
         try {
@@ -139,16 +141,17 @@ class StockopnameController extends Controller
 
                         // Record mutation
                         StockMutation::create([
-                            'product_id' => $item->product_id,
-                            'from_warehouse_id' => $adjustment < 0 ? $stockopname->warehouse_id : null,
-                            'to_warehouse_id' => $adjustment > 0 ? $stockopname->warehouse_id : null,
-                            'batch_number' => null,
-                            'quantity' => $adjustment,
-                            'reference_type' => 'stockopname',
-                            'reference_id' => $stockopname->id,
-                            'notes' => 'Penyesuaian stock opname ' . $stockopname->stockopname_number,
-                            'user_id' => auth()->id(),
-                        ]);
+                                                    'product_id' => $item->product_id,
+                                                    'from_warehouse_id' => $adjustment < 0 ? $stockopname->warehouse_id : null,
+                                                    'to_warehouse_id' => $adjustment > 0 ? $stockopname->warehouse_id : null,
+                                                    'batch_number' => null,
+                                                    'quantity' => abs($adjustment),
+                                                    'type' => 'stockopname',
+                                                    'reference_type' => 'stockopname',
+                                                    'reference_id' => $stockopname->id,
+                                                    'notes' => 'Penyesuaian stock opname ' . $stockopname->stockopname_number . ' (' . ($adjustment > 0 ? '+' : '') . $adjustment . ')',
+                                                    'user_id' => auth()->id(),
+                                                ]);
                     }
                 }
             }
@@ -170,10 +173,12 @@ class StockopnameController extends Controller
     }
 
     public function reject(Request $request, Stockopname $stockopname)
-    {
-        if ($stockopname->status !== 'pending_approval') {
-            return back()->with('error', 'Status stock opname tidak valid.');
-        }
+        {
+            abort_unless(auth()->user()->can('stockopname.approve'), 403);
+
+            if ($stockopname->status !== 'pending_approval') {
+                return back()->with('error', 'Status stock opname tidak valid.');
+            }
 
         $stockopname->update([
             'status' => 'rejected',

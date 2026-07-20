@@ -40,15 +40,25 @@ class RoleController extends Controller
      */
     public function updatePermissions(Request $request, Role $role)
     {
-        // Prevent modifying Super Admin permissions by non-super admins
+        if (!auth()->user()->hasRole('Super Admin') || !auth()->user()->can('role.manage')) {
+            abort(403);
+        }
+
+        // Hard lock: only Super Admin may edit Super Admin role permissions
         if ($role->name === 'Super Admin' && !auth()->user()->hasRole('Super Admin')) {
             abort(403);
         }
-        
-        $permissions = $request->input('permissions', []);
-        
+
+        $validated = $request->validate([
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['string', 'exists:permissions,name'],
+        ]);
+
+        $permissions = $validated['permissions'] ?? [];
         $role->syncPermissions($permissions);
-        
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         return redirect()->route('admin.roles.index')
             ->with('success', "Permission untuk role {$role->name} berhasil diperbarui!");
     }

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -19,14 +20,14 @@ return new class extends Migration
 
         // Insert default settings
         DB::table('app_settings')->insert([
-            ['key' => 'app_name', 'value' => 'Koperasi Digital', 'type' => 'string', 'group' => 'general', 'created_at' => now(), 'updated_at' => now()],
-            ['key' => 'app_tagline', 'value' => 'Sistem Manajemen Koperasi Terpadu', 'type' => 'string', 'group' => 'general', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'app_name', 'value' => 'Warehouse Management', 'type' => 'string', 'group' => 'general', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'app_tagline', 'value' => 'Sistem Manajemen Gudang', 'type' => 'string', 'group' => 'general', 'created_at' => now(), 'updated_at' => now()],
             ['key' => 'app_logo', 'value' => null, 'type' => 'string', 'group' => 'appearance', 'created_at' => now(), 'updated_at' => now()],
-            ['key' => 'primary_color', 'value' => '#10b981', 'type' => 'string', 'group' => 'appearance', 'created_at' => now(), 'updated_at' => now()],
-            ['key' => 'interest_rate_default', 'value' => '12', 'type' => 'integer', 'group' => 'loan', 'created_at' => now(), 'updated_at' => now()],
-            ['key' => 'max_loan_amount', 'value' => '50000000', 'type' => 'integer', 'group' => 'loan', 'created_at' => now(), 'updated_at' => now()],
-            ['key' => 'simpanan_pokok', 'value' => '100000', 'type' => 'integer', 'group' => 'saving', 'created_at' => now(), 'updated_at' => now()],
-            ['key' => 'simpanan_wajib', 'value' => '50000', 'type' => 'integer', 'group' => 'saving', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'primary_color', 'value' => '#14B8A6', 'type' => 'string', 'group' => 'appearance', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'company_name', 'value' => 'Demo Warehouse', 'type' => 'string', 'group' => 'general', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'company_address', 'value' => null, 'type' => 'string', 'group' => 'general', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'company_phone', 'value' => null, 'type' => 'string', 'group' => 'general', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'low_stock_threshold', 'value' => '10', 'type' => 'integer', 'group' => 'inventory', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 

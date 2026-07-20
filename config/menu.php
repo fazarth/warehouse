@@ -1,133 +1,292 @@
 <?php
 
 /**
- * Dynamic Menu Configuration
- * 
- * Each menu item can specify:
- * - title: Display name
- * - route: Laravel route name
- * - icon: Emoji or icon class
- * - module: Module code (null = always visible)
- * - roles: Array of allowed roles (['*'] = all roles)
- * - group: Menu group for categorization
+ * WMS navigation matrix (single source of truth for sidebar).
+ *
+ * Filtering order in ModuleService:
+ * 1) module enabled (if module set)
+ * 2) permission (if set) — user must can() any listed permission
+ * 3) roles (if set and not ['*']) — user must hasAnyRole
+ *
+ * Super Admin role mapping UI later; current matrix is hard-coded in seeder + this file.
  */
-
 return [
-    // ===== UTAMA =====
+    // ===== MAIN =====
     [
         'title' => 'Dashboard',
         'route' => 'dashboard',
+        'route_is' => 'dashboard',
         'icon' => '📊',
         'module' => null,
+        'permission' => null,
         'roles' => ['*'],
-        'group' => 'utama',
+        'group' => 'main',
+        'group_label' => 'Menu Utama',
     ],
-    
-    // ===== DATA MASTER =====
     [
-        'title' => 'Anggota',
-        'route' => 'members.index',
-        'icon' => '👥',
-        'module' => 'member',
-        'roles' => ['Super Admin', 'Admin Koperasi', 'Ketua', 'Bendahara', 'Petugas'],
+        'title' => 'Scan QR',
+        'route' => 'scan.index',
+        'route_is' => 'scan.*',
+        'icon' => '📷',
+        'module' => null,
+        'permission' => null,
+        'roles' => ['*'],
+        'group' => 'main',
+        'group_label' => 'Menu Utama',
+    ],
+    [
+        'title' => 'Mobile Scan',
+        'route' => 'mobile.scan',
+        'route_is' => 'mobile.*',
+        'icon' => '📱',
+        'module' => null,
+        'permission' => null,
+        'roles' => ['*'],
+        'group' => 'main',
+        'group_label' => 'Menu Utama',
+    ],
+
+    // ===== MASTER DATA (Admin + Supervisor view; Operator: no sidebar master) =====
+    [
+        'title' => 'Gudang',
+        'route' => 'warehouses.index',
+        'route_is' => 'warehouses.*',
+        'icon' => '🏭',
+        'module' => 'warehouse',
+        'permission' => 'warehouse.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor'],
         'group' => 'master',
-    ],
-    
-    // ===== TRANSAKSI =====
-    [
-        'title' => 'Simpanan',
-        'route' => 'savings.index',
-        'icon' => '💰',
-        'module' => 'saving',
-        'roles' => ['Super Admin', 'Admin Koperasi', 'Bendahara', 'Petugas'],
-        'group' => 'transaksi',
+        'group_label' => 'Master Data',
     ],
     [
-        'title' => 'Pinjaman',
-        'route' => 'loans.index',
-        'icon' => '💳',
-        'module' => 'loan',
-        'roles' => ['Super Admin', 'Admin Koperasi', 'Ketua', 'Bendahara', 'Petugas'],
-        'group' => 'transaksi',
+        'title' => 'Zone / Rak / Bin',
+        'route' => 'locations.index',
+        'route_is' => 'locations.*',
+        'icon' => '📍',
+        'module' => 'location',
+        'permission' => 'location.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor'],
+        'group' => 'master',
+        'group_label' => 'Master Data',
     ],
     [
-        'title' => 'Angsuran',
-        'route' => 'installments.index',
-        'icon' => '📅',
-        'module' => 'loan',
-        'roles' => ['Super Admin', 'Admin Koperasi', 'Bendahara', 'Petugas'],
-        'group' => 'transaksi',
-    ],
-    
-    // ===== KEUANGAN =====
-    [
-        'title' => 'Kas & Jurnal',
-        'route' => 'finance.index',
-        'icon' => '📒',
-        'module' => 'finance',
-        'roles' => ['Super Admin', 'Admin Koperasi', 'Bendahara'],
-        'group' => 'keuangan',
+        'title' => 'Supplier',
+        'route' => 'suppliers.index',
+        'route_is' => 'suppliers.*',
+        'icon' => '🚚',
+        'module' => 'supplier',
+        'permission' => 'supplier.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor'],
+        'group' => 'master',
+        'group_label' => 'Master Data',
     ],
     [
-        'title' => 'SHU',
-        'route' => 'shu.index',
-        'icon' => '📈',
-        'module' => 'shu',
-        'roles' => ['Super Admin', 'Admin Koperasi', 'Ketua', 'Bendahara'],
-        'group' => 'keuangan',
-    ],
-    
-    // ===== UNIT USAHA =====
-    [
-        'title' => 'Inventori',
-        'route' => 'inventory.index',
+        'title' => 'Produk',
+        'route' => 'products.index',
+        'route_is' => 'products.*',
         'icon' => '📦',
-        'module' => 'inventory',
-        'roles' => ['Super Admin', 'Admin Koperasi', 'Petugas'],
-        'group' => 'usaha',
+        'module' => 'product',
+        'permission' => 'product.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor'],
+        'group' => 'master',
+        'group_label' => 'Master Data',
     ],
-    
-    // ===== LAPORAN =====
+
+    // ===== TRANSACTIONS =====
+    // PO = procurement (Admin + Super; Supervisor view-only). Operator: NO PO.
+    [
+        'title' => 'Purchase Order',
+        'route' => 'purchase-orders.index',
+        'route_is' => 'purchase-orders.*',
+        'icon' => '📝',
+        'module' => 'purchase_order',
+        'permission' => 'purchase_order.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor'],
+        'group' => 'transaction',
+        'group_label' => 'Transaksi',
+    ],
+    [
+        'title' => 'Penerimaan Barang',
+        'route' => 'goods-receipts.index',
+        'route_is' => 'goods-receipts.*',
+        'icon' => '📥',
+        'module' => 'goods_receipt',
+        'permission' => 'goods_receipt.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor', 'Operator'],
+        'group' => 'transaction',
+        'group_label' => 'Transaksi',
+    ],
+    [
+        'title' => 'Put Away',
+        'route' => 'putaways.index',
+        'route_is' => 'putaways.*',
+        'icon' => '📍',
+        'module' => 'putaway',
+        'permission' => 'putaway.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor', 'Operator'],
+        'group' => 'transaction',
+        'group_label' => 'Transaksi',
+    ],
+    [
+        'title' => 'Pengiriman Barang',
+        'route' => 'goods-issues.index',
+        'route_is' => 'goods-issues.*',
+        'icon' => '📤',
+        'module' => 'goods_issue',
+        'permission' => 'goods_issue.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor', 'Operator'],
+        'group' => 'transaction',
+        'group_label' => 'Transaksi',
+    ],
+    [
+        'title' => 'Stock Opname',
+        'route' => 'stockopnames.index',
+        'route_is' => 'stockopnames.*',
+        'icon' => '📋',
+        'module' => 'stockopname',
+        'permission' => 'stockopname.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor', 'Operator'],
+        'group' => 'transaction',
+        'group_label' => 'Transaksi',
+    ],
+    [
+        'title' => 'Returns',
+        'route' => 'returns.index',
+        'route_is' => 'returns.*',
+        'icon' => '↩️',
+        'module' => 'return',
+        'permission' => 'return.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor', 'Operator'],
+        'group' => 'transaction',
+        'group_label' => 'Transaksi',
+    ],
+    [
+        'title' => 'Cycle Count',
+        'route' => 'cycle-counts.index',
+        'route_is' => 'cycle-counts.*',
+        'icon' => '🔢',
+        'module' => 'cycle_count',
+        'permission' => 'cycle_count.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor', 'Operator'],
+        'group' => 'transaction',
+        'group_label' => 'Transaksi',
+    ],
+
+    // ===== INVENTORY =====
+    [
+        'title' => 'Stok Gudang',
+        'route' => 'inventory.index',
+        'route_is' => 'inventory.index',
+        'icon' => '📊',
+        'module' => 'inventory',
+        'permission' => 'inventory.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor', 'Operator'],
+        'group' => 'inventory',
+        'group_label' => 'Inventori',
+    ],
+    [
+        'title' => 'Mutasi Stok',
+        'route' => 'inventory.mutation',
+        'route_is' => 'inventory.mutation*',
+        'icon' => '🔄',
+        'module' => 'mutation',
+        'permission' => 'inventory.mutation',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor'],
+        'group' => 'inventory',
+        'group_label' => 'Inventori',
+    ],
+
+    // ===== REPORTS =====
     [
         'title' => 'Laporan',
         'route' => 'reports.index',
+        'route_is' => 'reports.index|reports.receipts|reports.issues|reports.stock|reports.mutations|reports.low-stock',
         'icon' => '📄',
         'module' => 'report',
-        'roles' => ['Super Admin', 'Admin Koperasi', 'Ketua', 'Bendahara'],
-        'group' => 'laporan',
-    ],
-    
-    // ===== ADMIN =====
-    [
-        'title' => 'Audit Log',
-        'route' => 'audit.index',
-        'icon' => '🔍',
-        'module' => null,
-        'roles' => ['Super Admin', 'Admin Koperasi'],
-        'group' => 'admin',
+        'permission' => 'report.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor'],
+        'group' => 'report',
+        'group_label' => 'Laporan',
     ],
     [
-        'title' => 'Kelola Modul',
-        'route' => 'admin.modules.index',
-        'icon' => '🧩',
+        'title' => 'Aging / Expiry',
+        'route' => 'reports.aging',
+        'route_is' => 'reports.aging',
+        'icon' => '⏳',
+        'module' => 'report',
+        'permission' => 'report.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor'],
+        'group' => 'report',
+        'group_label' => 'Laporan',
+    ],
+    [
+        'title' => 'Low Stock',
+        'route' => 'reports.low-stock',
+        'route_is' => 'reports.low-stock',
+        'icon' => '⚠️',
+        'module' => 'report',
+        'permission' => 'report.view',
+        'roles' => ['Super Admin', 'Admin Gudang', 'Supervisor'],
+        'group' => 'report',
+        'group_label' => 'Laporan',
+    ],
+
+    // ===== ACCOUNT (all authenticated) =====
+    [
+        'title' => 'Akun Saya',
+        'route' => 'settings.account',
+        'route_is' => 'settings.account|settings.password|settings.index',
+        'icon' => '👤',
         'module' => null,
-        'roles' => ['Super Admin'],
+        'permission' => null,
+        'roles' => ['*'],
+        'group' => 'account',
+        'group_label' => 'Akun',
+    ],
+
+    // ===== ADMIN / SYSTEM =====
+    [
+        'title' => 'Pengaturan Aplikasi',
+        'route' => 'settings.app',
+        'route_is' => 'settings.app',
+        'icon' => '⚙️',
+        'module' => 'setting',
+        'permission' => 'setting.edit',
+        'roles' => ['Super Admin', 'Admin Gudang'],
         'group' => 'admin',
+        'group_label' => 'Administrasi',
     ],
     [
         'title' => 'Kelola User',
         'route' => 'admin.users.index',
-        'icon' => '👤',
+        'route_is' => 'admin.users.*',
+        'icon' => '👥',
         'module' => null,
-        'roles' => ['Super Admin', 'Admin Koperasi'],
+        'permission' => 'user.view',
+        'roles' => ['Super Admin', 'Admin Gudang'],
         'group' => 'admin',
+        'group_label' => 'Administrasi',
     ],
     [
-        'title' => 'Pengaturan',
-        'route' => 'settings.index',
-        'icon' => '⚙️',
-        'module' => 'setting',
-        'roles' => ['*'],
+        'title' => 'Kelola Role',
+        'route' => 'admin.roles.index',
+        'route_is' => 'admin.roles.*',
+        'icon' => '🔐',
+        'module' => null,
+        'permission' => 'role.manage',
+        'roles' => ['Super Admin'],
         'group' => 'admin',
+        'group_label' => 'Administrasi',
+    ],
+    [
+        'title' => 'Kelola Modul',
+        'route' => 'admin.modules.index',
+        'route_is' => 'admin.modules.*',
+        'icon' => '🧩',
+        'module' => null,
+        'permission' => 'module.manage',
+        'roles' => ['Super Admin'],
+        'group' => 'admin',
+        'group_label' => 'Administrasi',
     ],
 ];

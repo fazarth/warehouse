@@ -125,16 +125,17 @@ class InventoryController extends Controller
 
             // Record mutation
             StockMutation::create([
-                'product_id' => $validated['product_id'],
-                'from_warehouse_id' => $validated['from_warehouse_id'],
-                'to_warehouse_id' => $validated['to_warehouse_id'],
-                'batch_number' => $validated['batch_number'],
-                'quantity' => $validated['quantity'],
-                'reference_type' => 'transfer',
-                'reference_id' => null,
-                'notes' => $validated['notes'] ?? 'Mutasi antar gudang',
-                'user_id' => auth()->id(),
-            ]);
+                            'product_id' => $validated['product_id'],
+                            'from_warehouse_id' => $validated['from_warehouse_id'],
+                            'to_warehouse_id' => $validated['to_warehouse_id'],
+                            'batch_number' => $validated['batch_number'],
+                            'quantity' => $validated['quantity'],
+                            'type' => 'transfer',
+                            'reference_type' => 'transfer',
+                            'reference_id' => null,
+                            'notes' => $validated['notes'] ?? 'Mutasi antar gudang',
+                            'user_id' => auth()->id(),
+                        ]);
 
             DB::commit();
 

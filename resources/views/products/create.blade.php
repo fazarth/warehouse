@@ -39,25 +39,31 @@
                 <textarea name="description" rows="2" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition">{{ old('description') }}</textarea>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Unit/Satuan *</label>
-                    <input type="text" name="unit" value="{{ old('unit', 'PCS') }}" required
-                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition"
-                           placeholder="PCS, BOX, KG, dll">
-                    @error('unit') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                    <input type="text" name="category" value="{{ old('category') }}" list="categories"
-                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition">
-                    <datalist id="categories">
-                        @foreach($categories as $cat)
-                        <option value="{{ $cat }}">
-                        @endforeach
-                    </datalist>
-                </div>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Unit/Satuan *</label>
+                                <input type="text" name="unit" value="{{ old('unit', 'PCS') }}" required
+                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition"
+                                       placeholder="PCS, BOX, KG, dll">
+                                @error('unit') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                                <input type="text" name="category" value="{{ old('category') }}" list="categories"
+                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition">
+                                <datalist id="categories">
+                                    @foreach($categories as $cat)
+                                    <option value="{{ $cat }}">
+                                    @endforeach
+                                </datalist>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Min Stock</label>
+                                <input type="number" min="0" name="min_stock" value="{{ old('min_stock', 0) }}"
+                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition">
+                                <p class="text-xs text-gray-400 mt-1">0 = tidak alert low stock</p>
+                            </div>
+                        </div>
             
             <div class="flex items-center gap-3">
                 <input type="checkbox" name="is_active" id="is_active" value="1" checked class="w-5 h-5 rounded border-gray-300 text-teal-600 focus:ring-teal-500">

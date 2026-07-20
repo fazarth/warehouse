@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Module;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
 
 class ModuleService
 {
@@ -15,25 +16,16 @@ class ModuleService
         $this->license = $license;
     }
 
-    /**
-     * Check if a module is enabled
-     */
     public function isEnabled(string $code): bool
     {
         return Module::isEnabled($code);
     }
 
-    /**
-     * Get all enabled modules
-     */
     public function getEnabledModules(): Collection
     {
         return Module::getEnabled();
     }
 
-    /**
-     * Get all modules with their status
-     */
     public function getAllModules(): Collection
     {
         return Module::orderBy('sort_order')->get()->map(function ($module) {
@@ -44,67 +36,86 @@ class ModuleService
     }
 
     /**
-     * Get menu items for a user based on role and enabled modules
+     * Menu items for sidebar — permission-first, then role, then module toggle.
      */
     public function getMenuItems(User $user): array
     {
         $menuConfig = config('menu', []);
         $enabledModules = $this->getEnabledModules()->pluck('code')->toArray();
-        
-        return collect($menuConfig)->filter(function ($item) use ($user, $enabledModules) {
-            // Check module is enabled (null means always show)
-            if ($item['module'] && !in_array($item['module'], $enabledModules)) {
-                return false;
-            }
 
-            // Check user has role access
-            if ($item['roles'] !== ['*'] && !$user->hasAnyRole($item['roles'])) {
-                return false;
-            }
-
-            return true;
-        })->values()->toArray();
+        return collect($menuConfig)
+            ->filter(fn (array $item) => $this->userCanSeeMenuItem($user, $item, $enabledModules))
+            ->map(function (array $item) {
+                $route = $item['route'] ?? null;
+                $item['url'] = ($route && Route::has($route)) ? route($route) : null;
+                $item['available'] = $item['url'] !== null;
+                return $item;
+            })
+            ->filter(fn (array $item) => $item['available'])
+            ->values()
+            ->toArray();
     }
 
-    /**
-     * Check if user can access a module
-     */
+    public function userCanSeeMenuItem(User $user, array $item, ?array $enabledModules = null): bool
+    {
+        $enabledModules ??= $this->getEnabledModules()->pluck('code')->toArray();
+
+        // Module toggle
+        if (!empty($item['module']) && !in_array($item['module'], $enabledModules, true)) {
+            return false;
+        }
+
+        // Permission gate (preferred)
+        $permission = $item['permission'] ?? null;
+        if ($permission) {
+            $perms = is_array($permission) ? $permission : [$permission];
+            $ok = false;
+            foreach ($perms as $perm) {
+                if ($user->can($perm)) {
+                    $ok = true;
+                    break;
+                }
+            }
+            if (!$ok) {
+                return false;
+            }
+        }
+
+        // Role gate (secondary / menu visibility)
+        $roles = $item['roles'] ?? ['*'];
+        if ($roles !== ['*'] && !$user->hasAnyRole($roles)) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function canAccess(string $moduleCode, User $user): bool
     {
-        // Check module is enabled
         if (!$this->isEnabled($moduleCode)) {
             return false;
         }
 
-        // Find module config in menu
         $menuConfig = config('menu', []);
         $moduleMenu = collect($menuConfig)->firstWhere('module', $moduleCode);
 
         if (!$moduleMenu) {
-            return true; // No restriction defined
-        }
-
-        // Check role
-        if ($moduleMenu['roles'] === ['*']) {
             return true;
         }
 
-        return $user->hasAnyRole($moduleMenu['roles']);
+        return $this->userCanSeeMenuItem($user, $moduleMenu);
     }
 
-    /**
-     * Toggle module status
-     */
     public function toggle(string $code, bool $enabled): bool
     {
         $module = Module::where('code', $code)->first();
-        
+
         if (!$module || $module->is_core) {
-            return false; // Core modules cannot be disabled
+            return false;
         }
 
         if (!$this->license->allowsModule($code)) {
-            return false; // License doesn't allow this module
+            return false;
         }
 
         $module->update(['is_enabled' => $enabled]);
@@ -112,12 +123,26 @@ class ModuleService
     }
 
     /**
-     * Get menu items grouped by category
+     * Grouped menu for layout: preserves group order from config.
+     *
+     * @return array<string, array{label: string, items: array<int, array>}>
      */
     public function getGroupedMenu(User $user): array
     {
         $items = $this->getMenuItems($user);
-        
-        return collect($items)->groupBy('group')->toArray();
+        $grouped = [];
+
+        foreach ($items as $item) {
+            $key = $item['group'] ?? 'main';
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = [
+                    'label' => $item['group_label'] ?? ucfirst($key),
+                    'items' => [],
+                ];
+            }
+            $grouped[$key]['items'][] = $item;
+        }
+
+        return $grouped;
     }
 }

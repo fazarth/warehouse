@@ -107,8 +107,8 @@
     </div>
 
     <!-- Pending Alerts -->
-    @if($stats['pendingReceipts'] > 0 || $stats['pendingStockopnames'] > 0)
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    @if($stats['pendingReceipts'] > 0 || $stats['pendingStockopnames'] > 0 || $stats['lowStock'] > 0 || $stats['nearExpiry'] > 0 || $stats['expired'] > 0)
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         @if($stats['pendingReceipts'] > 0)
         <a href="{{ route('goods-receipts.index', ['status' => 'pending']) }}" class="flex items-center gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl hover:bg-yellow-100 transition">
             <div class="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center text-xl">⏳</div>
@@ -118,7 +118,7 @@
             </div>
         </a>
         @endif
-        
+
         @if($stats['pendingStockopnames'] > 0)
         <a href="{{ route('stockopnames.index', ['status' => 'pending_approval']) }}" class="flex items-center gap-4 p-4 bg-purple-50 border border-purple-200 rounded-xl hover:bg-purple-100 transition">
             <div class="w-12 h-12 bg-purple-400 rounded-xl flex items-center justify-center text-xl text-white">📋</div>
@@ -128,6 +128,36 @@
             </div>
         </a>
         @endif
+
+        @can('report.view')
+        @if($stats['lowStock'] > 0)
+        <a href="{{ route('reports.low-stock') }}" class="flex items-center gap-4 p-4 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition">
+            <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-xl text-white">⚠️</div>
+            <div>
+                <p class="font-semibold text-red-800">{{ $stats['lowStock'] }} Low Stock</p>
+                <p class="text-sm text-red-600">On-hand ≤ min stock</p>
+            </div>
+        </a>
+        @endif
+        @if($stats['nearExpiry'] > 0)
+        <a href="{{ route('reports.aging') }}" class="flex items-center gap-4 p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition">
+            <div class="w-12 h-12 bg-amber-400 rounded-xl flex items-center justify-center text-xl">⏳</div>
+            <div>
+                <p class="font-semibold text-amber-800">{{ number_format($stats['nearExpiry']) }} Near Expiry</p>
+                <p class="text-sm text-amber-600">Qty ≤ 60 hari</p>
+            </div>
+        </a>
+        @endif
+        @if($stats['expired'] > 0)
+        <a href="{{ route('reports.aging') }}" class="flex items-center gap-4 p-4 bg-rose-50 border border-rose-200 rounded-xl hover:bg-rose-100 transition">
+            <div class="w-12 h-12 bg-rose-500 rounded-xl flex items-center justify-center text-xl text-white">☠️</div>
+            <div>
+                <p class="font-semibold text-rose-800">{{ number_format($stats['expired']) }} Expired</p>
+                <p class="text-sm text-rose-600">Perlu tindakan FEFO</p>
+            </div>
+        </a>
+        @endif
+        @endcan
     </div>
     @endif
 

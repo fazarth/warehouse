@@ -26,7 +26,9 @@
                 </select>
             </div>
             <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">🔍 Filter</button>
-        </form>
+                        <a href="{{ route('reports.stock', array_merge(request()->query(), ['export' => 1])) }}"
+                           class="px-6 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition">⬇ CSV</a>
+                    </form>
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

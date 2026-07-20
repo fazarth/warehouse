@@ -16,20 +16,24 @@
         
         <div class="flex items-center gap-3">
             @if($stockopname->status === 'draft')
-            <form action="{{ route('stockopnames.submit', $stockopname) }}" method="POST">
-                @csrf
-                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition">📤 Submit</button>
-            </form>
-            @elseif($stockopname->status === 'pending_approval')
-            <form action="{{ route('stockopnames.approve', $stockopname) }}" method="POST" class="inline" onsubmit="return confirm('Approve?')">
-                @csrf
-                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition">✓ Approve</button>
-            </form>
-            <form action="{{ route('stockopnames.reject', $stockopname) }}" method="POST" class="inline" onsubmit="return confirm('Reject?')">
-                @csrf
-                <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition">✗ Reject</button>
-            </form>
-            @endif
+                        @can('stockopname.create')
+                        <form action="{{ route('stockopnames.submit', $stockopname) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition">📤 Submit</button>
+                        </form>
+                        @endcan
+                        @elseif($stockopname->status === 'pending_approval')
+                        @can('stockopname.approve')
+                        <form action="{{ route('stockopnames.approve', $stockopname) }}" method="POST" class="inline" onsubmit="return confirm('Approve?')">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition">✓ Approve</button>
+                        </form>
+                        <form action="{{ route('stockopnames.reject', $stockopname) }}" method="POST" class="inline" onsubmit="return confirm('Reject?')">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition">✗ Reject</button>
+                        </form>
+                        @endcan
+                        @endif
             
             <span class="px-3 py-2 text-sm font-medium rounded-xl 
                 {{ $stockopname->status === 'approved' ? 'bg-green-100 text-green-700' : '' }}

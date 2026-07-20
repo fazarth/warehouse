@@ -17,9 +17,11 @@
             <input type="date" name="date" value="{{ request('date') }}" class="px-4 py-2 rounded-xl border border-gray-200 focus:border-teal-500">
             <button type="submit" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition">🔍</button>
         </form>
-        <a href="{{ route('goods-issues.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition">
-            <span>📤</span> Buat Pengiriman
-        </a>
+        @can('goods_issue.create')
+                <a href="{{ route('goods-issues.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition">
+                    <span>📤</span> Buat Pengiriman
+                </a>
+                @endcan
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -60,17 +62,19 @@
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('goods-issues.show', $issue) }}" class="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition">👁️</a>
-                                @if($issue->status === 'pending')
-                                <form action="{{ route('goods-issues.ship', $issue) }}" method="POST" onsubmit="return confirm('Kirim barang ini?')">
-                                    @csrf
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Kirim">🚚</button>
-                                </form>
-                                @elseif($issue->status === 'shipped')
-                                <form action="{{ route('goods-issues.deliver', $issue) }}" method="POST" onsubmit="return confirm('Konfirmasi terkirim?')">
-                                    @csrf
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition" title="Delivered">✓</button>
-                                </form>
-                                @endif
+                                @can('goods_issue.ship')
+                                                                @if($issue->status === 'pending')
+                                                                <form action="{{ route('goods-issues.ship', $issue) }}" method="POST" onsubmit="return confirm('Kirim barang ini?')">
+                                                                    @csrf
+                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Kirim">🚚</button>
+                                                                </form>
+                                                                @elseif($issue->status === 'shipped')
+                                                                <form action="{{ route('goods-issues.deliver', $issue) }}" method="POST" onsubmit="return confirm('Konfirmasi terkirim?')">
+                                                                    @csrf
+                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition" title="Delivered">✓</button>
+                                                                </form>
+                                                                @endif
+                                                                @endcan
                             </div>
                         </td>
                     </tr>

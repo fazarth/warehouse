@@ -16,9 +16,11 @@
             <input type="date" name="date" value="{{ request('date') }}" class="px-4 py-2 rounded-xl border border-gray-200 focus:border-teal-500">
             <button type="submit" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition">🔍</button>
         </form>
-        <a href="{{ route('goods-receipts.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition">
-            <span>📥</span> Buat Penerimaan
-        </a>
+        @can('goods_receipt.create')
+                <a href="{{ route('goods-receipts.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition">
+                    <span>📥</span> Buat Penerimaan
+                </a>
+                @endcan
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -60,11 +62,13 @@
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('goods-receipts.show', $receipt) }}" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition">👁️</a>
                                 @if($receipt->status === 'pending')
-                                <form action="{{ route('goods-receipts.verify', $receipt) }}" method="POST" onsubmit="return confirm('Verifikasi penerimaan ini? Stok akan diperbarui.')">
-                                    @csrf
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Verifikasi">✓</button>
-                                </form>
-                                @endif
+                                                                @can('goods_receipt.verify')
+                                                                <form action="{{ route('goods-receipts.verify', $receipt) }}" method="POST" onsubmit="return confirm('Verifikasi penerimaan ini? Stok akan diperbarui.')">
+                                                                    @csrf
+                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Verifikasi">✓</button>
+                                                                </form>
+                                                                @endcan
+                                                                @endif
                             </div>
                         </td>
                     </tr>

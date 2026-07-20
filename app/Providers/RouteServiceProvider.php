@@ -26,6 +26,11 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
+        // W4: cycle-counts use stockopnames table (mode=cycle)
+        Route::bind('cycle_count', function ($value) {
+            return \App\Models\Stockopname::whereKey($value)->firstOrFail();
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

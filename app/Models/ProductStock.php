@@ -13,6 +13,7 @@ class ProductStock extends Model
     protected $fillable = [
         'product_id',
         'warehouse_id',
+        'location_id',
         'batch_number',
         'lot_number',
         'expired_date',
@@ -32,6 +33,11 @@ class ProductStock extends Model
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
+    }
+
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
     }
 
     public function isExpired(): bool

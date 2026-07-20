@@ -12,15 +12,17 @@ class Stockopname extends Model
     use HasFactory;
 
     protected $fillable = [
-        'stockopname_number',
-        'warehouse_id',
-        'stockopname_date',
-        'status',
-        'notes',
-        'user_id',
-        'approved_by',
-        'approved_at',
-    ];
+            'stockopname_number',
+            'warehouse_id',
+            'location_id',
+            'stockopname_date',
+            'status',
+            'mode',
+            'notes',
+            'user_id',
+            'approved_by',
+            'approved_at',
+        ];
 
     protected $casts = [
         'stockopname_date' => 'date',

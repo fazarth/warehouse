@@ -6,7 +6,6 @@
 /storage/*.key
 /vendor
 .env
-.md
 .env.backup
 .env.production
 Homestead.json
@@ -17,3 +16,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+smoke_*_result.*
+smoke_*_result.txt
+smoke_*_result.json

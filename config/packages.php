@@ -1,10 +1,18 @@
 <?php
 
+/**
+ * Package → module allow-list for LicenseService.
+ * Enterprise WMS portfolio default: LICENSE_TYPE=full (see .env / config/license.php).
+ */
 return [
     'basic' => [
         'name' => 'Paket Basic',
         'description' => 'Untuk gudang kecil dengan fitur dasar',
-        'modules' => ['warehouse', 'product', 'supplier', 'goods_receipt', 'goods_issue', 'inventory', 'report', 'setting'],
+        'modules' => [
+            'warehouse', 'location', 'product', 'supplier',
+            'purchase_order', 'goods_receipt', 'putaway', 'goods_issue',
+            'inventory', 'mutation', 'report', 'setting',
+        ],
         'max_members' => null,
         'features' => [
             'Penerimaan barang',
@@ -14,22 +22,27 @@ return [
         ],
         'price' => 'Rp 1.500.000',
     ],
-    
+
     'pro' => [
         'name' => 'Paket Pro',
         'description' => 'Untuk gudang menengah dengan fitur lengkap',
-        'modules' => ['warehouse', 'product', 'supplier', 'goods_receipt', 'goods_issue', 'stockopname', 'inventory', 'report', 'setting'],
+        'modules' => [
+            'warehouse', 'location', 'product', 'supplier',
+            'purchase_order', 'goods_receipt', 'putaway', 'goods_issue',
+            'stockopname', 'return', 'cycle_count',
+            'inventory', 'mutation', 'report', 'setting',
+        ],
         'max_members' => null,
         'features' => [
             'Semua fitur Basic',
             'Stock Opname',
-            'Mutasi antar gudang',
-            'Stock card tracking',
+            'Returns & Cycle Count',
+            'Mutasi stok',
             'Advanced reporting',
         ],
         'price' => 'Rp 3.000.000',
     ],
-    
+
     'full' => [
         'name' => 'Paket Full / Enterprise',
         'description' => 'Untuk gudang besar dengan semua fitur',

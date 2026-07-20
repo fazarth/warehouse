@@ -8,9 +8,11 @@
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <p class="text-gray-600">Total {{ $suppliers->total() }} supplier</p>
-        <a href="{{ route('suppliers.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition">
-            <span>➕</span> Tambah Supplier
-        </a>
+        @can('supplier.create')
+                <a href="{{ route('suppliers.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition">
+                    <span>➕</span> Tambah Supplier
+                </a>
+                @endcan
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -47,11 +49,15 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('suppliers.edit', $supplier) }}" class="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition">✏️</a>
-                                <form action="{{ route('suppliers.destroy', $supplier) }}" method="POST" onsubmit="return confirm('Hapus supplier ini?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">🗑️</button>
-                                </form>
+                                @can('supplier.edit')
+                                                                <a href="{{ route('suppliers.edit', $supplier) }}" class="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition">✏️</a>
+                                                                @endcan
+                                                                @can('supplier.delete')
+                                                                <form action="{{ route('suppliers.destroy', $supplier) }}" method="POST" onsubmit="return confirm('Hapus supplier ini?')">
+                                                                    @csrf @method('DELETE')
+                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">🗑️</button>
+                                                                </form>
+                                                                @endcan
                             </div>
                         </td>
                     </tr>

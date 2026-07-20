@@ -12,22 +12,33 @@ class GoodsReceiptItem extends Model
 
     protected $fillable = [
         'goods_receipt_id',
+        'purchase_order_item_id',
         'product_id',
         'warehouse_id',
         'batch_number',
         'lot_number',
         'expired_date',
         'quantity',
+        'qty_pass',
+        'qty_fail',
+        'qc_notes',
     ];
 
     protected $casts = [
         'expired_date' => 'date',
         'quantity' => 'integer',
+        'qty_pass' => 'integer',
+        'qty_fail' => 'integer',
     ];
 
     public function goodsReceipt(): BelongsTo
     {
         return $this->belongsTo(GoodsReceipt::class);
+    }
+
+    public function purchaseOrderItem(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrderItem::class);
     }
 
     public function product(): BelongsTo

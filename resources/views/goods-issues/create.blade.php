@@ -40,60 +40,72 @@
         </div>
         
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-800">Daftar Item</h3>
-                <button type="button" @click="addItem()" class="px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-xl transition text-sm font-medium">
-                    ➕ Tambah Item
-                </button>
-            </div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Daftar Item</h3>
+                            <p class="text-xs text-gray-500">Stok diambil dari bin (FEFO) saat allocate — staging tidak dipakai.</p>
+                        </div>
+                        <button type="button" @click="addItem()" class="px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-xl transition text-sm font-medium">
+                            ➕ Tambah Item
+                        </button>
+                    </div>
+
+                    @if(isset($stocks) && $stocks->count())
+                    <div class="mb-4 p-3 bg-teal-50 rounded-xl text-xs text-teal-800">
+                        <span class="font-semibold">Bin available:</span>
+                        @foreach($stocks->take(8) as $st)
+                            <span class="inline-block mr-2">{{ $st['sku'] }}/{{ $st['wh'] }}={{ $st['qty'] }}</span>
+                        @endforeach
+                    </div>
+                    @endif
             
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
-                        <tr class="text-left text-xs font-medium text-gray-500 uppercase">
-                            <th class="px-4 py-3">Produk *</th>
-                            <th class="px-4 py-3">Dari Lokasi *</th>
-                            <th class="px-4 py-3">Batch</th>
-                            <th class="px-4 py-3">Qty *</th>
-                            <th class="px-4 py-3 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <template x-for="(item, idx) in items" :key="idx">
-                            <tr>
-                                <td class="px-4 py-3">
-                                    <select :name="'items['+idx+'][product_id]'" required class="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-teal-500 text-sm">
-                                        <option value="">Pilih</option>
-                                        @foreach($products as $product)
-                                        <option value="{{ $product->id }}">{{ $product->sku }} - {{ $product->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <select :name="'items['+idx+'][warehouse_id]'" required class="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-teal-500 text-sm">
-                                        <option value="">Pilih</option>
-                                        @foreach($warehouses as $wh)
-                                        <option value="{{ $wh->id }}">{{ $wh->code }}</option>
-                                        @endforeach
-                                    </select>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <input type="text" :name="'items['+idx+'][batch_number]'" 
-                                           class="w-24 px-3 py-2 rounded-lg border border-gray-200 focus:border-teal-500 text-sm" placeholder="-">
-                                </td>
-                                <td class="px-4 py-3">
-                                    <input type="number" :name="'items['+idx+'][quantity]'" step="0.01" min="0.01" required
-                                           class="w-24 px-3 py-2 rounded-lg border border-gray-200 focus:border-teal-500 text-sm">
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <button type="button" @click="removeItem(idx)" x-show="items.length > 1" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition">🗑️</button>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr class="text-left text-xs font-medium text-gray-500 uppercase">
+                                    <th class="px-4 py-3">Produk *</th>
+                                    <th class="px-4 py-3">Dari Lokasi *</th>
+                                    <th class="px-4 py-3">Batch</th>
+                                    <th class="px-4 py-3">Qty *</th>
+                                    <th class="px-4 py-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <template x-for="(item, idx) in items" :key="idx">
+                                    <tr>
+                                        <td class="px-4 py-3">
+                                            <select :name="'items['+idx+'][product_id]'" required class="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-teal-500 text-sm">
+                                                <option value="">Pilih</option>
+                                                @foreach($products as $product)
+                                                <option value="{{ $product->id }}">{{ $product->sku }} - {{ $product->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <select :name="'items['+idx+'][warehouse_id]'" required class="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-teal-500 text-sm">
+                                                <option value="">Pilih</option>
+                                                @foreach($warehouses as $wh)
+                                                <option value="{{ $wh->id }}" @selected($wh->code==='WH-MAIN')>{{ $wh->code }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <input type="text" :name="'items['+idx+'][batch_number]'" 
+                                                   class="w-24 px-3 py-2 rounded-lg border border-gray-200 focus:border-teal-500 text-sm" placeholder="-">
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <input type="number" :name="'items['+idx+'][quantity]'" step="1" min="1" required
+                                                   class="w-24 px-3 py-2 rounded-lg border border-gray-200 focus:border-teal-500 text-sm">
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <button type="button" @click="removeItem(idx)" x-show="items.length > 1" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition">🗑️</button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
         
         <div class="flex items-center gap-3">
             <button type="submit" class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-xl transition">

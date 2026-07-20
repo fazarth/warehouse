@@ -17,12 +17,14 @@ class Product extends Model
         'description',
         'unit',
         'category',
+        'min_stock',
         'image',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'min_stock' => 'integer',
     ];
 
     public function stocks(): HasMany

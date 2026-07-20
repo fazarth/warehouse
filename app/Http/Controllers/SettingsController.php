@@ -16,11 +16,11 @@ class SettingsController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         return view('settings.index', [
             'user' => $user,
-            'isAdmin' => $user->hasRole('Admin'),
-            'isPengurus' => $user->hasRole('Pengurus'),
+            // App settings only for users with setting.edit (Super Admin / Admin Gudang)
+            'isAdmin' => $user->can('setting.edit'),
         ]);
     }
 
@@ -82,15 +82,15 @@ class SettingsController extends Controller
      */
     public function app()
     {
-        $this->authorize('manage settings');
+        abort_unless(auth()->user()->can('setting.edit'), 403);
 
         return view('settings.app', [
             'settings' => [
-                'app_name' => AppSetting::get('app_name', 'Koperasi Digital'),
-                'app_tagline' => AppSetting::get('app_tagline', 'Sistem Manajemen Koperasi'),
+                'app_name' => AppSetting::get('app_name', 'Warehouse Management'),
+                'app_tagline' => AppSetting::get('app_tagline', 'Sistem Manajemen Gudang'),
                 'app_logo' => AppSetting::get('app_logo'),
                 'app_favicon' => AppSetting::get('app_favicon'),
-                'primary_color' => AppSetting::get('primary_color', '#10b981'),
+                'primary_color' => AppSetting::get('primary_color', '#14B8A6'),
             ],
         ]);
     }
@@ -100,7 +100,7 @@ class SettingsController extends Controller
      */
     public function updateApp(Request $request)
     {
-        $this->authorize('manage settings');
+        abort_unless(auth()->user()->can('setting.edit'), 403);
 
         $request->validate([
             'app_name' => ['required', 'string', 'max:100'],
@@ -135,7 +135,8 @@ class SettingsController extends Controller
      */
     public function finance()
     {
-        $this->authorize('manage settings');
+        // Legacy koperasi screen — not used by WMS; keep gated.
+        abort_unless(auth()->user()->can('setting.edit'), 403);
 
         return view('settings.finance', [
             'settings' => [
@@ -152,7 +153,7 @@ class SettingsController extends Controller
      */
     public function updateFinance(Request $request)
     {
-        $this->authorize('manage settings');
+        abort_unless(auth()->user()->can('setting.edit'), 403);
 
         $request->validate([
             'interest_rate_default' => ['required', 'numeric', 'min:0', 'max:100'],

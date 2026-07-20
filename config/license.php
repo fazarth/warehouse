@@ -2,7 +2,7 @@
 
 return [
     // License type from .env
-    'type' => env('LICENSE_TYPE', 'basic'),
+    'type' => env('LICENSE_TYPE', 'full'),
     
     // Optional license key for validation
     'key' => env('LICENSE_KEY'),

@@ -111,121 +111,30 @@
                 </div>
             </div>
             
-            <!-- Navigation (scrollable) -->
+            <!-- Navigation (RBAC-filtered via config/menu.php + ModuleService) -->
             <nav class="flex-1 py-6 overflow-y-auto">
-                <p class="px-6 mb-3 text-xs font-semibold text-teal-300 uppercase tracking-wider">Menu Utama</p>
-                
-                <a href="{{ route('dashboard') }}" 
-                   class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <span class="text-xl">📊</span>
-                    <span class="font-medium">Dashboard</span>
-                </a>
-                
-                <p class="px-6 mt-6 mb-3 text-xs font-semibold text-teal-300 uppercase tracking-wider">Master Data</p>
-                
-                @if(Route::has('warehouses.index'))
-                <a href="{{ route('warehouses.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('warehouses.*') ? 'active' : '' }}">
-                    <span class="text-xl">🏭</span>
-                    <span class="font-medium">Lokasi Gudang</span>
-                </a>
-                @endif
-                
-                @if(Route::has('suppliers.index'))
-                <a href="{{ route('suppliers.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
-                    <span class="text-xl">🚚</span>
-                    <span class="font-medium">Supplier</span>
-                </a>
-                @endif
-                
-                @if(Route::has('products.index'))
-                <a href="{{ route('products.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('products.*') ? 'active' : '' }}">
-                    <span class="text-xl">📦</span>
-                    <span class="font-medium">Produk</span>
-                </a>
-                @endif
-                
-                <p class="px-6 mt-6 mb-3 text-xs font-semibold text-teal-300 uppercase tracking-wider">Transaksi</p>
-                
-                @if(Route::has('goods-receipts.index'))
-                <a href="{{ route('goods-receipts.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('goods-receipts.*') ? 'active' : '' }}">
-                    <span class="text-xl">📥</span>
-                    <span class="font-medium">Penerimaan Barang</span>
-                </a>
-                @endif
-                
-                @if(Route::has('goods-issues.index'))
-                <a href="{{ route('goods-issues.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('goods-issues.*') ? 'active' : '' }}">
-                    <span class="text-xl">📤</span>
-                    <span class="font-medium">Pengiriman Barang</span>
-                </a>
-                @endif
-                
-                @if(Route::has('stockopnames.index'))
-                <a href="{{ route('stockopnames.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('stockopnames.*') ? 'active' : '' }}">
-                    <span class="text-xl">📋</span>
-                    <span class="font-medium">Stock Opname</span>
-                </a>
-                @endif
-                
-                <p class="px-6 mt-6 mb-3 text-xs font-semibold text-teal-300 uppercase tracking-wider">Inventori</p>
-                
-                @if(Route::has('inventory.index'))
-                <a href="{{ route('inventory.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('inventory.index') ? 'active' : '' }}">
-                    <span class="text-xl">📊</span>
-                    <span class="font-medium">Stok Gudang</span>
-                </a>
-                @endif
-                
-                @if(Route::has('inventory.mutation'))
-                <a href="{{ route('inventory.mutation') }}" 
-                   class="sidebar-link {{ request()->routeIs('inventory.mutation*') ? 'active' : '' }}">
-                    <span class="text-xl">🔄</span>
-                    <span class="font-medium">Mutasi Stok</span>
-                </a>
-                @endif
-                
-                <p class="px-6 mt-6 mb-3 text-xs font-semibold text-teal-300 uppercase tracking-wider">Laporan</p>
-                
-                @if(Route::has('reports.index'))
-                <a href="{{ route('reports.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                    <span class="text-xl">📄</span>
-                    <span class="font-medium">Laporan</span>
-                </a>
-                @endif
-                
-                @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin']))
-                <p class="px-6 mt-6 mb-3 text-xs font-semibold text-teal-300 uppercase tracking-wider">Admin</p>
-                
-                @if(auth()->user()->hasRole('Super Admin') && Route::has('admin.modules.index'))
-                <a href="{{ route('admin.modules.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('admin.modules.*') ? 'active' : '' }}">
-                    <span class="text-xl">🧩</span>
-                    <span class="font-medium">Kelola Modul</span>
-                </a>
-                @endif
-                
-                @if(Route::has('admin.users.index'))
-                <a href="{{ route('admin.users.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <span class="text-xl">👤</span>
-                    <span class="font-medium">Kelola User</span>
-                </a>
-                @endif
-                @endif
-                
-                <a href="{{ route('settings.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-                    <span class="text-xl">⚙️</span>
-                    <span class="font-medium">Pengaturan</span>
-                </a>
+                @forelse(($sidebarMenu ?? []) as $groupKey => $group)
+                    <p class="px-6 {{ $loop->first ? 'mb-3' : 'mt-6 mb-3' }} text-xs font-semibold text-teal-300 uppercase tracking-wider">
+                        {{ $group['label'] ?? ucfirst($groupKey) }}
+                    </p>
+                    @foreach(($group['items'] ?? []) as $item)
+                        @php
+                            $routeIs = $item['route_is'] ?? ($item['route'] ?? '');
+                            $isActive = $routeIs !== '' && request()->routeIs(...(is_array($routeIs) ? $routeIs : explode('|', $routeIs)));
+                        @endphp
+                        <a href="{{ $item['url'] }}"
+                           class="sidebar-link {{ $isActive ? 'active' : '' }}">
+                            <span class="text-xl">{{ $item['icon'] ?? '•' }}</span>
+                            <span class="font-medium">{{ $item['title'] }}</span>
+                        </a>
+                    @endforeach
+                @empty
+                    <a href="{{ route('dashboard') }}"
+                       class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <span class="text-xl">📊</span>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                @endforelse
             </nav>
             
             <!-- Logout Section (fixed at bottom) -->

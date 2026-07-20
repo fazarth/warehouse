@@ -8,176 +8,133 @@ use Spatie\Permission\Models\Permission;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Hard-coded RBAC matrix for Enterprise WMS.
+ *
+ * | Role          | Intent                                              |
+ * |---------------|-----------------------------------------------------|
+ * | Super Admin   | Full system + role/module mapping                   |
+ * | Admin Gudang  | Full warehouse ops + users + app settings           |
+ * | Supervisor    | Oversight: view + verify/approve/ship + reports     |
+ * | Operator      | Floor only: scan, putaway, GR/GI create, SO count   |
+ *                 | NO master CRUD, NO PO, NO report, NO admin          |
+ */
 class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // ===== CREATE PERMISSIONS (match routes exactly) =====
         $permissions = [
-            // Warehouse (Lokasi Gudang)
-            'warehouse.view',
-            'warehouse.create',
-            'warehouse.edit',
-            'warehouse.delete',
-            
-            // Supplier
-            'supplier.view',
-            'supplier.create',
-            'supplier.edit',
-            'supplier.delete',
-            
-            // Product
-            'product.view',
-            'product.create',
-            'product.edit',
-            'product.delete',
-            
-            // Goods Receipt (Penerimaan Barang)
-            'goods_receipt.view',
-            'goods_receipt.create',
-            'goods_receipt.verify',
-            
-            // Goods Issue (Pengiriman Barang)
-            'goods_issue.view',
-            'goods_issue.create',
-            'goods_issue.ship',
-            
-            // Stockopname
-            'stockopname.view',
-            'stockopname.create',
-            'stockopname.approve',
-            
-            // Inventory
-            'inventory.view',
-            'inventory.mutation',
-            
-            // Reports
+            'warehouse.view', 'warehouse.create', 'warehouse.edit', 'warehouse.delete',
+            'location.view', 'location.create', 'location.edit', 'location.delete',
+            'supplier.view', 'supplier.create', 'supplier.edit', 'supplier.delete',
+            'product.view', 'product.create', 'product.edit', 'product.delete',
+            'purchase_order.view', 'purchase_order.create', 'purchase_order.edit',
+            'goods_receipt.view', 'goods_receipt.create', 'goods_receipt.verify',
+            'putaway.view', 'putaway.complete',
+            'goods_issue.view', 'goods_issue.create', 'goods_issue.ship',
+            'stockopname.view', 'stockopname.create', 'stockopname.approve',
+            'return.view', 'return.create', 'return.receive',
+            'cycle_count.view', 'cycle_count.create',
+            'inventory.view', 'inventory.mutation',
             'report.view',
-            
-            // Settings
-            'setting.view',
-            'setting.edit',
-            
-            // User Management
-            'user.view',
-            'user.create',
-            'user.edit',
-            'user.delete',
-            
-            // Module Management
+            'setting.view', 'setting.edit',
+            'user.view', 'user.create', 'user.edit', 'user.delete',
+            'role.manage',
             'module.manage',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        // ===== CREATE ROLES =====
-        
-        // 1. Super Admin - ALL permissions
-        $superAdmin = Role::firstOrCreate(['name' => 'Super Admin']);
-        $superAdmin->syncPermissions(Permission::all());
+        // Super Admin: everything
+        $superAdmin = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
+        $superAdmin->syncPermissions(Permission::where('guard_name', 'web')->get());
 
-        // 2. Admin Gudang - Full warehouse operations
-        $adminGudang = Role::firstOrCreate(['name' => 'Admin Gudang']);
+        // Admin Gudang: full ops + users + app settings; NO role/module mapping
+        $adminGudang = Role::firstOrCreate(['name' => 'Admin Gudang', 'guard_name' => 'web']);
         $adminGudang->syncPermissions([
-            // All warehouse permissions
             'warehouse.view', 'warehouse.create', 'warehouse.edit', 'warehouse.delete',
+            'location.view', 'location.create', 'location.edit', 'location.delete',
             'supplier.view', 'supplier.create', 'supplier.edit', 'supplier.delete',
             'product.view', 'product.create', 'product.edit', 'product.delete',
+            'purchase_order.view', 'purchase_order.create', 'purchase_order.edit',
             'goods_receipt.view', 'goods_receipt.create', 'goods_receipt.verify',
+            'putaway.view', 'putaway.complete',
             'goods_issue.view', 'goods_issue.create', 'goods_issue.ship',
             'stockopname.view', 'stockopname.create', 'stockopname.approve',
+            'return.view', 'return.create', 'return.receive',
+            'cycle_count.view', 'cycle_count.create',
             'inventory.view', 'inventory.mutation',
             'report.view',
             'setting.view', 'setting.edit',
             'user.view', 'user.create', 'user.edit', 'user.delete',
         ]);
 
-        // 3. Supervisor - Approval and oversight
-        $supervisor = Role::firstOrCreate(['name' => 'Supervisor']);
+        // Supervisor: view masters + verify/ship/approve + reports; NO master CRUD, NO PO create, NO users
+        $supervisor = Role::firstOrCreate(['name' => 'Supervisor', 'guard_name' => 'web']);
         $supervisor->syncPermissions([
             'warehouse.view',
+            'location.view',
             'supplier.view',
             'product.view',
+            'purchase_order.view',
             'goods_receipt.view', 'goods_receipt.verify',
+            'putaway.view', 'putaway.complete',
             'goods_issue.view', 'goods_issue.ship',
             'stockopname.view', 'stockopname.approve',
+            'return.view', 'return.receive',
+            'cycle_count.view',
             'inventory.view', 'inventory.mutation',
             'report.view',
             'setting.view',
         ]);
 
-        // 4. Operator - Daily operations (create only, no verify/approve)
-        $operator = Role::firstOrCreate(['name' => 'Operator']);
+        // Operator: floor only — NO master pages, NO PO, NO verify/ship/approve, NO report, NO admin
+        // product/location master routes stay closed; scan does direct DB lookup (auth only).
+        $operator = Role::firstOrCreate(['name' => 'Operator', 'guard_name' => 'web']);
         $operator->syncPermissions([
-            'warehouse.view',
-            'supplier.view',
-            'product.view',
             'goods_receipt.view', 'goods_receipt.create',
+            'putaway.view', 'putaway.complete',
             'goods_issue.view', 'goods_issue.create',
             'stockopname.view', 'stockopname.create',
-            'inventory.view', 'inventory.mutation',
-            'report.view',
+            'return.view', 'return.create',
+            'cycle_count.view', 'cycle_count.create',
+            'inventory.view',
             'setting.view',
         ]);
 
-        // ===== CREATE DEFAULT USERS =====
-        
-        // Super Admin
-        $superAdminUser = User::firstOrCreate(
-            ['email' => 'superadmin@fazarth.my.id'],
-            [
-                'name' => 'Super Admin Gudang',
-                'password' => Hash::make('superadmin123!'),
-            ]
-        );
-        $superAdminUser->syncRoles(['Super Admin']);
+        $this->seedUsers();
 
-        // Admin Gudang
-        $adminUser = User::firstOrCreate(
-            ['email' => 'admin.gudang@fazarth.my.id'],
+        $this->command?->info('RBAC matrix reseeds OK (tight Operator/Supervisor).');
+        $this->command?->table(
+            ['Role', 'Email', 'Password', 'Scope'],
             [
-                'name' => 'Admin Gudang',
-                'password' => Hash::make('password'),
+                ['Super Admin', 'superadmin@fazarth.my.id', 'superadmin123!', 'All + Roles + Modules'],
+                ['Admin Gudang', 'admin.gudang@fazarth.my.id', 'password', 'Ops full + Users + Settings'],
+                ['Supervisor', 'supervisor@fazarth.my.id', 'password', 'View + verify/ship + reports'],
+                ['Operator', 'operator@fazarth.my.id', 'password', 'Floor only (no master/PO/report)'],
             ]
         );
-        $adminUser->syncRoles(['Admin Gudang']);
+    }
 
-        // Supervisor
-        $supervisorUser = User::firstOrCreate(
-            ['email' => 'supervisor@fazarth.my.id'],
-            [
-                'name' => 'Supervisor Gudang',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $supervisorUser->syncRoles(['Supervisor']);
+    protected function seedUsers(): void
+    {
+        $map = [
+            ['email' => 'superadmin@fazarth.my.id', 'name' => 'Super Admin Gudang', 'password' => 'superadmin123!', 'role' => 'Super Admin'],
+            ['email' => 'admin.gudang@fazarth.my.id', 'name' => 'Admin Gudang', 'password' => 'password', 'role' => 'Admin Gudang'],
+            ['email' => 'supervisor@fazarth.my.id', 'name' => 'Supervisor Gudang', 'password' => 'password', 'role' => 'Supervisor'],
+            ['email' => 'operator@fazarth.my.id', 'name' => 'Operator Gudang', 'password' => 'password', 'role' => 'Operator'],
+        ];
 
-        // Operator
-        $operatorUser = User::firstOrCreate(
-            ['email' => 'operator@fazarth.my.id'],
-            [
-                'name' => 'Operator Gudang',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $operatorUser->syncRoles(['Operator']);
-
-        $this->command->info('✅ Warehouse roles and permissions seeded successfully!');
-        $this->command->newLine();
-        $this->command->info('📋 Default Login Credentials:');
-        $this->command->table(
-            ['Role', 'Email', 'Password'],
-            [
-                ['Super Admin', 'superadmin@fazarth.my.id', 'superadmin123!'],
-                ['Admin Gudang', 'admin.gudang@fazarth.my.id', 'password'],
-                ['Supervisor', 'supervisor@fazarth.my.id', 'password'],
-                ['Operator', 'operator@fazarth.my.id', 'password'],
-            ]
-        );
+        foreach ($map as $row) {
+            $user = User::firstOrCreate(
+                ['email' => $row['email']],
+                ['name' => $row['name'], 'password' => Hash::make($row['password'])]
+            );
+            $user->syncRoles([$row['role']]);
+        }
     }
 }

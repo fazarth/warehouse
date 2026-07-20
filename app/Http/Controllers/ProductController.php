@@ -44,13 +44,15 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'unit' => 'required|string|max:20',
-            'category' => 'nullable|string|max:100',
-            'is_active' => 'boolean',
-        ]);
+                        'category' => 'nullable|string|max:100',
+                        'min_stock' => 'nullable|integer|min:0',
+                        'is_active' => 'boolean',
+                    ]);
 
-        $validated['is_active'] = $request->boolean('is_active', true);
+                    $validated['is_active'] = $request->boolean('is_active', true);
+                    $validated['min_stock'] = (int) ($validated['min_stock'] ?? 0);
 
-        Product::create($validated);
+                    Product::create($validated);
 
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil ditambahkan.');
@@ -78,13 +80,15 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'unit' => 'required|string|max:20',
-            'category' => 'nullable|string|max:100',
-            'is_active' => 'boolean',
-        ]);
+                        'category' => 'nullable|string|max:100',
+                        'min_stock' => 'nullable|integer|min:0',
+                        'is_active' => 'boolean',
+                    ]);
 
-        $validated['is_active'] = $request->boolean('is_active', true);
+                    $validated['is_active'] = $request->boolean('is_active', true);
+                    $validated['min_stock'] = (int) ($validated['min_stock'] ?? 0);
 
-        $product->update($validated);
+                    $product->update($validated);
 
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil diperbarui.');

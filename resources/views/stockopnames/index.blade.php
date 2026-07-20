@@ -17,9 +17,11 @@
             </select>
             <button type="submit" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition">🔍</button>
         </form>
-        <a href="{{ route('stockopnames.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl transition">
-            <span>📋</span> Buat Stock Opname
-        </a>
+        @can('stockopname.create')
+                <a href="{{ route('stockopnames.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl transition">
+                    <span>📋</span> Buat Stock Opname
+                </a>
+                @endcan
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -63,20 +65,24 @@
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('stockopnames.show', $so) }}" class="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition">👁️</a>
                                 @if($so->status === 'draft')
-                                <form action="{{ route('stockopnames.submit', $so) }}" method="POST" onsubmit="return confirm('Submit untuk approval?')">
-                                    @csrf
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Submit">📤</button>
-                                </form>
-                                @elseif($so->status === 'pending_approval')
-                                <form action="{{ route('stockopnames.approve', $so) }}" method="POST" onsubmit="return confirm('Approve stock opname?')">
-                                    @csrf
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition" title="Approve">✓</button>
-                                </form>
-                                <form action="{{ route('stockopnames.reject', $so) }}" method="POST" onsubmit="return confirm('Reject stock opname?')">
-                                    @csrf
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Reject">✗</button>
-                                </form>
-                                @endif
+                                                                @can('stockopname.create')
+                                                                <form action="{{ route('stockopnames.submit', $so) }}" method="POST" onsubmit="return confirm('Submit untuk approval?')">
+                                                                    @csrf
+                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Submit">📤</button>
+                                                                </form>
+                                                                @endcan
+                                                                @elseif($so->status === 'pending_approval')
+                                                                @can('stockopname.approve')
+                                                                <form action="{{ route('stockopnames.approve', $so) }}" method="POST" onsubmit="return confirm('Approve stock opname?')">
+                                                                    @csrf
+                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition" title="Approve">✓</button>
+                                                                </form>
+                                                                <form action="{{ route('stockopnames.reject', $so) }}" method="POST" onsubmit="return confirm('Reject stock opname?')">
+                                                                    @csrf
+                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Reject">✗</button>
+                                                                </form>
+                                                                @endcan
+                                                                @endif
                             </div>
                         </td>
                     </tr>

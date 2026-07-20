@@ -18,9 +18,11 @@
             </select>
             <button type="submit" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition">🔍</button>
         </form>
-        <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition">
-            <span>➕</span> Tambah Produk
-        </a>
+        @can('product.create')
+                <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition">
+                    <span>➕</span> Tambah Produk
+                </a>
+                @endcan
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -60,11 +62,15 @@
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('products.show', $product) }}" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition">👁️</a>
-                                <a href="{{ route('products.edit', $product) }}" class="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition">✏️</a>
-                                <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk ini?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">🗑️</button>
-                                </form>
+                                                                @can('product.edit')
+                                                                <a href="{{ route('products.edit', $product) }}" class="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition">✏️</a>
+                                                                @endcan
+                                                                @can('product.delete')
+                                                                <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk ini?')">
+                                                                    @csrf @method('DELETE')
+                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">🗑️</button>
+                                                                </form>
+                                                                @endcan
                             </div>
                         </td>
                     </tr>
