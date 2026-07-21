@@ -24,12 +24,24 @@
                 @error('code')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
             </div>
             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Barcode scan</label>
+                <input type="text" name="barcode" value="{{ old('barcode') }}" class="w-full rounded-xl border-gray-200 font-mono uppercase" placeholder="LOC-A-01-03 (opsional)">
+                <p class="text-xs text-gray-400 mt-1">Kosong = auto LOC-{kode}. Dipakai scanner HP/Zebra.</p>
+                @error('barcode')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tipe *</label>
                 <select name="type" class="w-full rounded-xl border-gray-200" required>
                     <option value="zone" @selected(old('type')==='zone')>Zona</option>
                     <option value="rack" @selected(old('type')==='rack')>Rak</option>
                     <option value="bin" @selected(old('type', 'bin')==='bin')>Bin</option>
                 </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Label tampilan</label>
+                <input type="text" name="display_name" value="{{ old('display_name') }}" class="w-full rounded-xl border-gray-200" placeholder="Nama di label QR">
             </div>
         </div>
         <div>

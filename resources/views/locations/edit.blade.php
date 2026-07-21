@@ -23,12 +23,22 @@
                 <input type="text" name="code" value="{{ old('code', $location->code) }}" class="w-full rounded-xl border-gray-200 font-mono uppercase" required>
             </div>
             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Barcode scan</label>
+                <input type="text" name="barcode" value="{{ old('barcode', $location->barcode) }}" class="w-full rounded-xl border-gray-200 font-mono uppercase">
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tipe *</label>
                 <select name="type" class="w-full rounded-xl border-gray-200" required>
                     @foreach(['zone','rack','bin'] as $t)
                         <option value="{{ $t }}" @selected(old('type', $location->type)===$t)>{{ \App\Models\Location::typeLabel($t) }}</option>
                     @endforeach
                 </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Label tampilan</label>
+                <input type="text" name="display_name" value="{{ old('display_name', $location->display_name) }}" class="w-full rounded-xl border-gray-200">
             </div>
         </div>
         <div>

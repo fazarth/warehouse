@@ -71,7 +71,9 @@ class LocationController extends Controller
                 'max:50',
                 Rule::unique('locations')->where(fn ($q) => $q->where('warehouse_id', $request->warehouse_id)),
             ],
+            'barcode' => 'nullable|string|max:80|unique:locations,barcode',
             'name' => 'required|string|max:255',
+            'display_name' => 'nullable|string|max:120',
             'type' => 'required|in:zone,rack,bin',
             'capacity' => 'nullable|integer|min:0',
             'description' => 'nullable|string|max:500',
@@ -80,6 +82,8 @@ class LocationController extends Controller
 
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['code'] = strtoupper($validated['code']);
+        $validated['barcode'] = $this->normalizeBarcode($validated['barcode'] ?? null, $validated['code']);
+        $validated['display_name'] = $validated['display_name'] ?? $validated['name'];
 
         if (!empty($validated['parent_id'])) {
             $parent = Location::findOrFail($validated['parent_id']);
@@ -128,7 +132,14 @@ class LocationController extends Controller
                     ->where(fn ($q) => $q->where('warehouse_id', $request->warehouse_id))
                     ->ignore($location->id),
             ],
+            'barcode' => [
+                'nullable',
+                'string',
+                'max:80',
+                Rule::unique('locations', 'barcode')->ignore($location->id),
+            ],
             'name' => 'required|string|max:255',
+            'display_name' => 'nullable|string|max:120',
             'type' => 'required|in:zone,rack,bin',
             'capacity' => 'nullable|integer|min:0',
             'description' => 'nullable|string|max:500',
@@ -137,6 +148,8 @@ class LocationController extends Controller
 
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['code'] = strtoupper($validated['code']);
+        $validated['barcode'] = $this->normalizeBarcode($validated['barcode'] ?? null, $validated['code']);
+        $validated['display_name'] = $validated['display_name'] ?? $validated['name'];
 
         if (!empty($validated['parent_id']) && (int) $validated['parent_id'] === (int) $location->id) {
             return back()->withInput()->with('error', 'Lokasi tidak bisa menjadi parent dirinya sendiri.');
@@ -170,5 +183,17 @@ class LocationController extends Controller
         $qr = $location->qrCode ?: $this->qrCodes->ensureFor($location);
 
         return view('locations.label', compact('location', 'qr'));
+    }
+
+    /** Normalize physical barcode; default LOC-{CODE} (SIPIL-inspired, not a copy). */
+    protected function normalizeBarcode(?string $barcode, string $code): string
+    {
+        $code = strtoupper(trim($code));
+        $barcode = strtoupper(trim((string) $barcode));
+        if ($barcode === '') {
+            return str_starts_with($code, 'LOC-') ? $code : 'LOC-'.$code;
+        }
+
+        return $barcode;
     }
 }

@@ -20,7 +20,9 @@ class Location extends Model
         'warehouse_id',
         'parent_id',
         'code',
+        'barcode',
         'name',
+        'display_name',
         'type',
         'capacity',
         'description',
@@ -31,6 +33,18 @@ class Location extends Model
         'capacity' => 'integer',
         'is_active' => 'boolean',
     ];
+
+    /** SIPIL-like label for scan/print: display_name → name → code */
+    public function label(): string
+    {
+        return $this->display_name ?: $this->name ?: $this->code;
+    }
+
+    /** Canonical scan code (barcode preferred). */
+    public function scanCode(): string
+    {
+        return strtoupper($this->barcode ?: (str_starts_with(strtoupper($this->code), 'LOC-') ? $this->code : 'LOC-'.$this->code));
+    }
 
     public function warehouse(): BelongsTo
     {

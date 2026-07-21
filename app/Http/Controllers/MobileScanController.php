@@ -92,7 +92,7 @@ class MobileScanController extends Controller
                     ? ['label' => 'Put Away', 'url' => route('putaways.index')]
                     : null,
                 $user?->can('inventory.view')
-                    ? ['label' => 'Stok Gudang', 'url' => route('inventory.index')]
+                    ? ['label' => 'Stok di bin', 'url' => route('inventory.index', ['location_id' => $entity->id])]
                     : null,
             ])),
             $type === 'warehouse' || $entity instanceof Warehouse => array_values(array_filter([
@@ -106,10 +106,14 @@ class MobileScanController extends Controller
 
     protected function fallback(string $code)
     {
-        if (str_starts_with($code, 'LOC-')) {
-            $raw = substr($code, 4);
+        // Location barcode / LOC-CODE (SIPIL-inspired lookup, not a copy of their API)
+        if (str_starts_with($code, 'LOC-') || str_starts_with($code, 'BIN-') || str_starts_with($code, 'RACK-')) {
+            $raw = preg_replace('/^(LOC|BIN|RACK)-/', '', $code);
 
-            return Location::where('code', $raw)->orWhere('code', $code)->first();
+            return Location::where('barcode', $code)
+                ->orWhere('code', $code)
+                ->orWhere('code', $raw)
+                ->first();
         }
         if (str_starts_with($code, 'ITEM-')) {
             $raw = substr($code, 5);
@@ -126,7 +130,9 @@ class MobileScanController extends Controller
             return GoodsReceipt::where('receipt_number', $code)->first();
         }
 
-        return Product::where('barcode', $code)->orWhere('sku', $code)->first()
+        // Bare barcode: try location barcode → product → location code → warehouse
+        return Location::where('barcode', $code)->first()
+            ?? Product::where('barcode', $code)->orWhere('sku', $code)->first()
             ?? Location::where('code', $code)->first()
             ?? Warehouse::where('code', $code)->first();
     }
