@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eu
 
 cd /app
 
@@ -8,10 +8,18 @@ if [ -z "${APP_KEY:-}" ]; then
   echo "Generated ephemeral APP_KEY for this container boot"
 fi
 
-php artisan config:clear || true
-php artisan migrate --force || true
-php artisan db:seed --force || true
-php artisan storage:link || true
+# Railway injects PORT; default 8080 for proxy friendliness
+PORT="${PORT:-8080}"
 
-PORT="${PORT:-8000}"
-exec php artisan serve --host=0.0.0.0 --port="$PORT"
+php artisan config:clear || true
+
+# Boot HTTP first so healthcheck can pass; migrate/seed in background
+(
+  sleep 2
+  php artisan migrate --force || true
+  php artisan db:seed --force || true
+  php artisan storage:link || true
+) &
+
+echo "Starting WMS on 0.0.0.0:${PORT}"
+exec php artisan serve --host=0.0.0.0 --port="${PORT}"
