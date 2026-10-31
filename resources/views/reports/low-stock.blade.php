@@ -8,13 +8,17 @@
 <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <p class="text-sm text-gray-500">{{ $rows->count() }} produk perlu perhatian</p>
-        <a href="{{ route('reports.low-stock', ['export' => 1]) }}"
-           class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-xl">
-            ⬇ Export CSV
-        </a>
+                    <div class="flex flex-wrap gap-2">
+                <a href="{{ route('reports.low-stock', ['format' => 'csv']) }}"
+                   class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition text-sm font-medium">CSV</a>
+                <a href="{{ route('reports.low-stock', ['format' => 'xlsx']) }}"
+                   class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 transition text-sm font-medium">Excel</a>
+                <a href="{{ route('reports.low-stock', ['format' => 'pdf']) }}"
+                   class="px-4 py-2 bg-rose-50 text-rose-700 rounded-xl hover:bg-rose-100 transition text-sm font-medium">PDF</a>
+            </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500">

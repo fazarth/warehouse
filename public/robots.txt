@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /dashboard
+Disallow: /admin/
+Sitemap: https://wms.nexwave-tech.my.id/sitemap.xml

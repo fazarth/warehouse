@@ -15,12 +15,12 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Product Info -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h3 class="font-bold text-gray-800 mb-4">Informasi Produk</h3>
             <dl class="space-y-3">
                 <div class="flex justify-between">
                     <dt class="text-gray-500">SKU</dt>
-                    <dd class="font-mono font-semibold text-teal-600">{{ $product->sku }}</dd>
+                    <dd class="font-mono font-semibold text-indigo-600">{{ $product->sku }}</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-500">Barcode</dt>
@@ -47,18 +47,18 @@
             </dl>
             
             <div class="mt-6 pt-4 border-t border-gray-100 flex gap-2">
-                <a href="{{ route('products.edit', $product) }}" class="flex-1 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-center rounded-xl transition">✏️ Edit</a>
-                <a href="{{ route('inventory.stock-card', $product) }}" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-xl transition">📊 Kartu Stok</a>
+                <a href="{{ route('products.edit', $product) }}" class="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-center rounded-xl transition">✏️ Edit</a>
+                <a href="{{ route('inventory.stock-card', $product) }}" class="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-center rounded-xl transition">📊 Kartu Stok</a>
             </div>
         </div>
 
         <!-- Stock Summary -->
-        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-gray-800">Stok per Lokasi</h3>
                 <div class="text-right">
                     <p class="text-sm text-gray-500">Total Stok</p>
-                    <p class="text-2xl font-bold text-teal-600">{{ number_format($totalStock) }} {{ $product->unit }}</p>
+                    <p class="text-2xl font-bold text-indigo-600">{{ number_format($totalStock) }} {{ $product->unit }}</p>
                 </div>
             </div>
             
@@ -81,7 +81,7 @@
                             <td class="px-4 py-3 text-sm">{{ $stock->lot_number ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm">
                                 @if($stock->expired_date)
-                                <span class="{{ $stock->expired_date->isPast() ? 'text-red-600' : ($stock->expired_date->diffInDays(now()) < 30 ? 'text-orange-600' : 'text-gray-600') }}">
+                                <span class="{{ $stock->expired_date->isPast() ? 'text-red-600' : ($stock->expired_date->diffInDays(now()) < 30 ? 'text-indigo-600' : 'text-gray-600') }}">
                                     {{ $stock->expired_date->format('d/m/Y') }}
                                 </span>
                                 @else

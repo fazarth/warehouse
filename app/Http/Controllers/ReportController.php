@@ -12,9 +12,9 @@ use App\Models\Stockopname;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Services\AgingService;
+use App\Support\TabularExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -61,16 +61,24 @@ class ReportController extends Controller
             $query->where('supplier_id', $request->supplier_id);
         }
 
-        if ($request->boolean('export')) {
+        if ($format = $this->exportFormat($request)) {
             $rows = $query->orderBy('receipt_date', 'desc')->get();
-            return $this->csv('report-receipts.csv', ['No', 'Tanggal', 'Supplier', 'Status', 'Items', 'Total Qty'], $rows->map(fn ($r) => [
+            $mapped = $rows->map(fn ($r) => [
                 $r->receipt_number,
                 optional($r->receipt_date)->format('Y-m-d'),
                 $r->supplier->name ?? '-',
                 $r->status,
                 $r->items_count,
                 $r->items_sum_quantity ?? 0,
-            ]));
+            ]);
+
+            return $this->export(
+                'report-receipts',
+                'Laporan Penerimaan',
+                ['No', 'Tanggal', 'Supplier', 'Status', 'Items', 'Total Qty'],
+                $mapped,
+                $format
+            );
         }
 
         $receipts = $query->orderBy('receipt_date', 'desc')->paginate(30)->withQueryString();
@@ -96,16 +104,24 @@ class ReportController extends Controller
             $query->where('status', $request->status);
         }
 
-        if ($request->boolean('export')) {
+        if ($format = $this->exportFormat($request)) {
             $rows = $query->orderBy('issue_date', 'desc')->get();
-            return $this->csv('report-issues.csv', ['No', 'Tanggal', 'Status', 'Items', 'Total Qty', 'User'], $rows->map(fn ($i) => [
+            $mapped = $rows->map(fn ($i) => [
                 $i->issue_number,
                 optional($i->issue_date)->format('Y-m-d'),
                 $i->status,
                 $i->items_count,
                 $i->items_sum_quantity ?? 0,
                 $i->user->name ?? '-',
-            ]));
+            ]);
+
+            return $this->export(
+                'report-issues',
+                'Laporan Pengiriman',
+                ['No', 'Tanggal', 'Status', 'Items', 'Total Qty', 'User'],
+                $mapped,
+                $format
+            );
         }
 
         $issues = $query->orderBy('issue_date', 'desc')->paginate(30)->withQueryString();
@@ -125,16 +141,24 @@ class ReportController extends Controller
             $query->where('category', $request->category);
         }
 
-        if ($request->boolean('export')) {
+        if ($format = $this->exportFormat($request)) {
             $rows = $query->orderBy('name')->get();
-            return $this->csv('report-stock.csv', ['SKU', 'Nama', 'Kategori', 'Unit', 'Total Qty', 'Min Stock'], $rows->map(fn ($p) => [
+            $mapped = $rows->map(fn ($p) => [
                 $p->sku,
                 $p->name,
                 $p->category,
                 $p->unit,
                 $p->stocks_sum_quantity ?? 0,
                 $p->min_stock ?? 0,
-            ]));
+            ]);
+
+            return $this->export(
+                'report-stock',
+                'Laporan Stok',
+                ['SKU', 'Nama', 'Kategori', 'Unit', 'Total Qty', 'Min Stock'],
+                $mapped,
+                $format
+            );
         }
 
         $products = $query->orderBy('name')->paginate(50)->withQueryString();
@@ -167,9 +191,9 @@ class ReportController extends Controller
             });
         }
 
-        if ($request->boolean('export')) {
+        if ($format = $this->exportFormat($request)) {
             $rows = $query->orderBy('created_at', 'desc')->limit(5000)->get();
-            return $this->csv('report-mutations.csv', ['Waktu', 'SKU', 'Qty', 'Tipe', 'Dari', 'Ke', 'User'], $rows->map(fn ($m) => [
+            $mapped = $rows->map(fn ($m) => [
                 $m->created_at?->format('Y-m-d H:i'),
                 $m->product->sku ?? '-',
                 $m->quantity,
@@ -177,7 +201,15 @@ class ReportController extends Controller
                 $m->fromWarehouse->code ?? '-',
                 $m->toWarehouse->code ?? '-',
                 $m->user->name ?? '-',
-            ]));
+            ]);
+
+            return $this->export(
+                'report-mutations',
+                'Laporan Mutasi Stok',
+                ['Waktu', 'SKU', 'Qty', 'Tipe', 'Dari', 'Ke', 'User'],
+                $mapped,
+                $format
+            );
         }
 
         $mutations = $query->orderBy('created_at', 'desc')->paginate(50)->withQueryString();
@@ -190,10 +222,18 @@ class ReportController extends Controller
     {
         $rows = $this->lowStockRows();
 
-        if ($request->boolean('export')) {
-            return $this->csv('report-low-stock.csv', ['SKU', 'Nama', 'Min', 'On Hand', 'Shortage'], $rows->map(fn ($r) => [
+        if ($format = $this->exportFormat($request)) {
+            $mapped = $rows->map(fn ($r) => [
                 $r['sku'], $r['name'], $r['min_stock'], $r['on_hand'], $r['shortage'],
-            ]));
+            ]);
+
+            return $this->export(
+                'report-low-stock',
+                'Laporan Low Stock',
+                ['SKU', 'Nama', 'Min', 'On Hand', 'Shortage'],
+                $mapped,
+                $format
+            );
         }
 
         return view('reports.low-stock', compact('rows'));
@@ -212,6 +252,7 @@ class ReportController extends Controller
             ->map(function (Product $p) use ($onHand) {
                 $qty = (int) ($onHand[$p->id] ?? 0);
                 $min = (int) $p->min_stock;
+
                 return [
                     'product_id' => $p->id,
                     'sku' => $p->sku,
@@ -227,18 +268,27 @@ class ReportController extends Controller
             ->values();
     }
 
-    protected function csv(string $filename, array $headers, $rows): StreamedResponse
+    protected function exportFormat(Request $request): ?string
     {
-        return response()->streamDownload(function () use ($headers, $rows) {
-            $out = fopen('php://output', 'w');
-            fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
-            fputcsv($out, $headers);
-            foreach ($rows as $row) {
-                fputcsv($out, is_array($row) ? $row : (array) $row);
-            }
-            fclose($out);
-        }, $filename, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
+        if ($request->filled('format')) {
+            $format = strtolower((string) $request->input('format'));
+
+            return in_array($format, ['csv', 'xlsx', 'pdf'], true) ? $format : null;
+        }
+
+        // Backward compatible: ?export=1 → csv
+        if ($request->boolean('export')) {
+            return 'csv';
+        }
+
+        return null;
+    }
+
+    protected function export(string $basename, string $title, array $headers, $rows, string $format)
+    {
+        $count = is_countable($rows) ? count($rows) : 0;
+        TabularExport::logExport($basename, $format, $count);
+
+        return TabularExport::download($basename, $headers, $rows, $format, $title);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -80,6 +81,15 @@ class UserController extends Controller
         ]);
         
         $user->assignRole($validated['role']);
+
+        AuditLog::log(
+            'admin.user.create',
+            User::class,
+            $user->id,
+            "User dibuat: {$user->email} (role {$validated['role']})",
+            null,
+            ['name' => $user->name, 'email' => $user->email, 'role' => $validated['role']]
+        );
         
         return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan!');
     }
@@ -123,6 +133,12 @@ class UserController extends Controller
             abort(403);
         }
         
+        $before = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->getRoleNames()->first(),
+        ];
+
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -133,6 +149,20 @@ class UserController extends Controller
         }
         
         $user->syncRoles([$validated['role']]);
+
+        AuditLog::log(
+            'admin.user.update',
+            User::class,
+            $user->id,
+            "User diubah: {$user->email}",
+            $before,
+            [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $validated['role'],
+                'password_changed' => (bool) $validated['password'],
+            ]
+        );
         
         return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui!');
     }
@@ -151,8 +181,23 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Tidak dapat menghapus akun sendiri!');
         }
-        
+
+        $snapshot = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->getRoleNames()->first(),
+        ];
+        $userId = $user->id;
         $user->delete();
+
+        AuditLog::log(
+            'admin.user.delete',
+            User::class,
+            $userId,
+            "User dihapus: {$snapshot['email']}",
+            $snapshot,
+            null
+        );
         
         return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus!');
     }

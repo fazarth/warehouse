@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\GoodsReceipt;
 use App\Models\GoodsReceiptItem;
 use App\Models\Product;
@@ -114,14 +115,28 @@ class GoodsReceiptController extends Controller
                 }
 
                 return $receipt;
-            });
+                            });
 
-            return redirect()->route('goods-receipts.show', $receipt)
-                ->with('success', 'Penerimaan barang berhasil dibuat dengan nomor '.$receipt->receipt_number);
-        } catch (\Throwable $e) {
-            return back()->withInput()->with('error', 'Gagal menyimpan: '.$e->getMessage());
-        }
-    }
+                            AuditLog::log(
+                                'ops.gr.create',
+                                GoodsReceipt::class,
+                                $receipt->id,
+                                'GR dibuat: '.$receipt->receipt_number,
+                                null,
+                                [
+                                    'receipt_number' => $receipt->receipt_number,
+                                    'supplier_id' => $receipt->supplier_id,
+                                    'purchase_order_id' => $receipt->purchase_order_id,
+                                    'items' => count($validated['items']),
+                                ]
+                            );
+
+                            return redirect()->route('goods-receipts.show', $receipt)
+                                ->with('success', 'Penerimaan barang berhasil dibuat dengan nomor '.$receipt->receipt_number);
+                        } catch (\Throwable $e) {
+                            return back()->withInput()->with('error', 'Gagal menyimpan: '.$e->getMessage());
+                        }
+                    }
 
     public function show(GoodsReceipt $goodsReceipt)
     {
@@ -243,15 +258,30 @@ class GoodsReceiptController extends Controller
                 }
 
                 // Spawn putaway only when there is pass qty
-                if ($totalPass > 0) {
-                    $this->putaway->createTasksFromReceipt($goodsReceipt->fresh('items'));
-                }
-            });
+                                if ($totalPass > 0) {
+                                    $this->putaway->createTasksFromReceipt($goodsReceipt->fresh('items'));
+                                }
 
-            return redirect()->route('goods-receipts.show', $goodsReceipt)
-                ->with('success', 'QC selesai. Stok staging masuk & putaway task dibuat.');
-        } catch (\Throwable $e) {
-            return back()->withInput()->with('error', 'Gagal verifikasi: '.$e->getMessage());
-        }
-    }
-}
+                                AuditLog::log(
+                                    'ops.gr.verify',
+                                    GoodsReceipt::class,
+                                    $goodsReceipt->id,
+                                    'GR diverifikasi/QC: '.$goodsReceipt->receipt_number,
+                                    ['status' => 'pending'],
+                                    [
+                                        'status' => 'verified',
+                                        'qc_status' => $goodsReceipt->fresh()->qc_status,
+                                        'total_pass' => $totalPass,
+                                        'total_fail' => $totalFail,
+                                        'skip_qc' => $skip,
+                                    ]
+                                );
+                            });
+
+                            return redirect()->route('goods-receipts.show', $goodsReceipt)
+                                ->with('success', 'QC selesai. Stok staging masuk & putaway task dibuat.');
+                        } catch (\Throwable $e) {
+                            return back()->withInput()->with('error', 'Gagal verifikasi: '.$e->getMessage());
+                        }
+                    }
+                }

@@ -21,7 +21,11 @@ php artisan key:generate
 composer install
 npm install && npm run build
 php artisan migrate --seed
-php artisan serve --host=127.0.0.1 --port=8000
+# Local default APP_PORT=8100 (Live/PORTS.md). Production/Railway uses host PORT.
+export APP_PORT="${APP_PORT:-8100}"
+php artisan serve --host=127.0.0.1 --port="${APP_PORT}"
+# APP_URL=http://127.0.0.1:8100
+# one-liner: ./scripts/start-local.sh
 ```
 
 ## Docker env note
@@ -29,11 +33,14 @@ php artisan serve --host=127.0.0.1 --port=8000
 `.env.docker` uses service hostnames (`DB_HOST=mysql`, `REDIS_HOST=redis`) for in-network containers.
 Host-side artisan/serve should use `127.0.0.1` and file drivers for cache/session if Redis is not exposed.
 
+`docker/start-wms.sh` binds `${PORT}` (Railway injects `PORT`; image default `8080`). Local host PHP should use **`APP_PORT=8100`**, not container `8080`.
+
 ## Cloudflare Tunnel (demo)
 
 ```bash
-php artisan serve --host=127.0.0.1 --port=8000
-cloudflared tunnel --url http://127.0.0.1:8000
+export APP_PORT="${APP_PORT:-8100}"
+php artisan serve --host=127.0.0.1 --port="${APP_PORT}"
+cloudflared tunnel --url "http://127.0.0.1:${APP_PORT}"
 ```
 
 Prefer a named tunnel + hostname for anything beyond a quick demo.

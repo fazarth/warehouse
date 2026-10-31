@@ -27,7 +27,7 @@ use App\Http\Controllers\ReportController;
 */
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('welcome');
 });
 
 // Authentication
@@ -65,13 +65,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('locations/{location}', [LocationController::class, 'destroy'])->name('locations.destroy');
     });
 
-    // Master Data: Warehouses (Locations/Racks)
-    Route::middleware(['permission:warehouse.view'])->group(function () {
-        Route::get('warehouses', [WarehouseController::class, 'index'])->name('warehouses.index');
-    });
+    // Master Data: Warehouses — static import before {warehouse}
     Route::middleware(['permission:warehouse.create'])->group(function () {
+        Route::get('warehouses/import', [WarehouseController::class, 'importForm'])->name('warehouses.import');
+        Route::post('warehouses/import', [WarehouseController::class, 'import'])->name('warehouses.import.store');
         Route::get('warehouses/create', [WarehouseController::class, 'create'])->name('warehouses.create');
         Route::post('warehouses', [WarehouseController::class, 'store'])->name('warehouses.store');
+    });
+    Route::middleware(['permission:warehouse.view'])->group(function () {
+        Route::get('warehouses/import-template', [WarehouseController::class, 'importTemplate'])->name('warehouses.import.template');
+        Route::get('warehouses', [WarehouseController::class, 'index'])->name('warehouses.index');
     });
     Route::middleware(['permission:warehouse.edit'])->group(function () {
         Route::get('warehouses/{warehouse}/edit', [WarehouseController::class, 'edit'])->name('warehouses.edit');
@@ -81,13 +84,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy');
     });
 
-    // Master Data: Suppliers
-    Route::middleware(['permission:supplier.view'])->group(function () {
-        Route::get('suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
-    });
+    // Master Data: Suppliers — static import before {supplier}
     Route::middleware(['permission:supplier.create'])->group(function () {
+        Route::get('suppliers/import', [SupplierController::class, 'importForm'])->name('suppliers.import');
+        Route::post('suppliers/import', [SupplierController::class, 'import'])->name('suppliers.import.store');
         Route::get('suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
         Route::post('suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+    });
+    Route::middleware(['permission:supplier.view'])->group(function () {
+        Route::get('suppliers/import-template', [SupplierController::class, 'importTemplate'])->name('suppliers.import.template');
+        Route::get('suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
     });
     Route::middleware(['permission:supplier.edit'])->group(function () {
         Route::get('suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
@@ -97,12 +103,15 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
     });
 
-    // Master Data: Products
+    // Master Data: Products — static import routes before {product}
     Route::middleware(['permission:product.create'])->group(function () {
+        Route::get('products/import', [ProductController::class, 'importForm'])->name('products.import');
+        Route::post('products/import', [ProductController::class, 'import'])->name('products.import.store');
         Route::get('products/create', [ProductController::class, 'create'])->name('products.create');
         Route::post('products', [ProductController::class, 'store'])->name('products.store');
     });
     Route::middleware(['permission:product.view'])->group(function () {
+        Route::get('products/import-template', [ProductController::class, 'importTemplate'])->name('products.import.template');
         Route::get('products', [ProductController::class, 'index'])->name('products.index');
         Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
     });
@@ -259,6 +268,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('roles', [App\Http\Controllers\Admin\RoleController::class, 'index'])->name('roles.index');
         Route::get('roles/{role}/permissions', [App\Http\Controllers\Admin\RoleController::class, 'permissions'])->name('roles.permissions');
         Route::put('roles/{role}/permissions', [App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
+    });
+
+    // Admin: audit log (Super Admin only)
+    Route::prefix('admin')->name('admin.')->middleware(['role:Super Admin', 'permission:audit.view'])->group(function () {
+        Route::get('audit-logs', [App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-logs.index');
+        Route::get('audit-logs/{auditLog}', [App\Http\Controllers\Admin\AuditLogController::class, 'show'])->name('audit-logs.show');
     });
 
     // Admin: user management (Super Admin + Admin Gudang via permission)

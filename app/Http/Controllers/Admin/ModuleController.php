@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Module;
 use App\Services\LicenseService;
 use App\Services\ModuleService;
@@ -55,10 +56,22 @@ class ModuleController extends Controller
             return back()->with('error', 'Lisensi Anda tidak mencakup modul ini. Upgrade ke paket yang lebih tinggi.');
         }
 
+        $before = ['is_enabled' => (bool) $module->is_enabled];
+
         // Toggle the status
         $module->update(['is_enabled' => !$module->is_enabled]);
 
         $status = $module->is_enabled ? 'diaktifkan' : 'dinonaktifkan';
+
+        AuditLog::log(
+            'admin.module.toggle',
+            Module::class,
+            $module->id,
+            "Modul {$module->name} ({$module->code}) {$status}",
+            $before,
+            ['is_enabled' => (bool) $module->is_enabled, 'code' => $module->code]
+        );
+
         return back()->with('success', "Modul {$module->name} berhasil {$status}!");
     }
 

@@ -13,7 +13,8 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "requests", "-q"])
     import requests
 
-BASE = "http://127.0.0.1:8000"
+import os
+BASE = os.environ.get("WMS_BASE_URL", f"http://127.0.0.1:{os.environ.get('APP_PORT', os.environ.get('PORT', '8100'))}")
 EMAIL = "superadmin@fazarth.my.id"
 PASSWORD = "superadmin123!"
 OUT = Path(__file__).with_name("smoke_w1_result.json")

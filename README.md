@@ -5,6 +5,9 @@
 Inbound **PO → GR → QC → Put Away** · Outbound **FEFO pick → pack → ship** · **Returns / cycle count / aging** · **Mobile scan** · **ERP API** · stock per **bin+batch** · **StockMutation** ledger · **QR** registry.
 
 > Recruiter one-pager: see **[PORTFOLIO.md](./PORTFOLIO.md)**  
+> **User guide (per role + per flow):** **[docs/USER_GUIDE.md](./docs/USER_GUIDE.md)**  
+> RBAC matrix: **[docs/RBAC.md](./docs/RBAC.md)**  
+> **Local Docker (shared live-mysql):** **[docs/DOCKER-LOCAL.md](./docs/DOCKER-LOCAL.md)**  
 > Pair project (.NET customs/bonded integration): `Live/bonded-inventory`
 
 ## Fitur
@@ -63,8 +66,11 @@ php artisan key:generate
 # sesuaikan DB_* (default: mysql database `warehouse`)
 php artisan migrate --seed
 npm run build   # atau: npm run dev
-php artisan serve --port=8000
-# http://127.0.0.1:8000
+# Local port: APP_PORT/PORT, default 8100 (not Laravel 8000). See Live/PORTS.md
+./scripts/start-local.sh
+# atau:
+# php artisan serve --host=127.0.0.1 --port="${APP_PORT:-8100}"
+# http://127.0.0.1:8100
 ```
 
 ### Smoke (regression)

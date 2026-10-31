@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\Warehouse;
 use App\Models\StockMutation;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -78,14 +79,27 @@ class StockopnameController extends Controller
 
             DB::commit();
 
-            return redirect()->route('stockopnames.show', $stockopname)
-                ->with('success', 'Stock opname berhasil dibuat dengan nomor ' . $stockopname->stockopname_number);
+                        AuditLog::log(
+                            'ops.so.create',
+                            Stockopname::class,
+                            $stockopname->id,
+                            'SO dibuat: '.$stockopname->stockopname_number,
+                            null,
+                            [
+                                'stockopname_number' => $stockopname->stockopname_number,
+                                'warehouse_id' => $stockopname->warehouse_id,
+                                'items' => count($validated['items']),
+                            ]
+                        );
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
-        }
-    }
+                        return redirect()->route('stockopnames.show', $stockopname)
+                            ->with('success', 'Stock opname berhasil dibuat dengan nomor ' . $stockopname->stockopname_number);
+
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        return back()->withInput()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
+                    }
+                }
 
     public function show(Stockopname $stockopname)
     {
@@ -101,8 +115,17 @@ class StockopnameController extends Controller
 
         $stockopname->update(['status' => 'pending_approval']);
 
-        return back()->with('success', 'Stock opname telah disubmit untuk approval.');
-    }
+                AuditLog::log(
+                    'ops.so.submit',
+                    Stockopname::class,
+                    $stockopname->id,
+                    'SO submit approval: '.$stockopname->stockopname_number,
+                    ['status' => 'draft'],
+                    ['status' => 'pending_approval']
+                );
+
+                return back()->with('success', 'Stock opname telah disubmit untuk approval.');
+            }
 
     public function approve(Stockopname $stockopname)
         {
@@ -157,20 +180,29 @@ class StockopnameController extends Controller
             }
 
             $stockopname->update([
-                'status' => 'approved',
-                'approved_by' => auth()->id(),
-                'approved_at' => now(),
-            ]);
+                            'status' => 'approved',
+                            'approved_by' => auth()->id(),
+                            'approved_at' => now(),
+                        ]);
 
-            DB::commit();
+                        DB::commit();
 
-            return back()->with('success', 'Stock opname berhasil disetujui dan stok telah disesuaikan.');
+                        AuditLog::log(
+                            'ops.so.approve',
+                            Stockopname::class,
+                            $stockopname->id,
+                            'SO approved: '.$stockopname->stockopname_number,
+                            ['status' => 'pending_approval'],
+                            ['status' => 'approved']
+                        );
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Gagal approve: ' . $e->getMessage());
-        }
-    }
+                        return back()->with('success', 'Stock opname berhasil disetujui dan stok telah disesuaikan.');
+
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        return back()->with('error', 'Gagal approve: ' . $e->getMessage());
+                    }
+                }
 
     public function reject(Request $request, Stockopname $stockopname)
         {
@@ -181,14 +213,26 @@ class StockopnameController extends Controller
             }
 
         $stockopname->update([
-            'status' => 'rejected',
-            'approved_by' => auth()->id(),
-            'approved_at' => now(),
-            'notes' => $stockopname->notes . "\n\nDitolak: " . ($request->rejection_reason ?? 'Tidak ada alasan'),
-        ]);
+                    'status' => 'rejected',
+                    'approved_by' => auth()->id(),
+                    'approved_at' => now(),
+                    'notes' => $stockopname->notes . "\n\nDitolak: " . ($request->rejection_reason ?? 'Tidak ada alasan'),
+                ]);
 
-        return back()->with('success', 'Stock opname ditolak.');
-    }
+                AuditLog::log(
+                    'ops.so.reject',
+                    Stockopname::class,
+                    $stockopname->id,
+                    'SO rejected: '.$stockopname->stockopname_number,
+                    ['status' => 'pending_approval'],
+                    [
+                        'status' => 'rejected',
+                        'reason' => $request->rejection_reason ?? null,
+                    ]
+                );
+
+                return back()->with('success', 'Stock opname ditolak.');
+            }
 
     // AJAX: Get products with stock in warehouse
     public function getWarehouseProducts(Warehouse $warehouse)

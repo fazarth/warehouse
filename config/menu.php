@@ -289,4 +289,15 @@ return [
         'group' => 'admin',
         'group_label' => 'Administrasi',
     ],
+    [
+        'title' => 'Audit Log',
+        'route' => 'admin.audit-logs.index',
+        'route_is' => 'admin.audit-logs.*',
+        'icon' => '🧾',
+        'module' => null,
+        'permission' => 'audit.view',
+        'roles' => ['Super Admin'],
+        'group' => 'admin',
+        'group_label' => 'Administrasi',
+    ],
 ];

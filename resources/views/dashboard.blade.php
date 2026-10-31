@@ -1,296 +1,207 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard')
-@section('page-title', 'Dashboard Warehouse')
-@section('page-subtitle', 'Ringkasan aktivitas gudang')
+@section('page-title', 'Dashboard')
+@section('page-subtitle', 'Ringkasan operasional gudang')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Welcome Banner -->
-    <div class="bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 text-white rounded-2xl relative overflow-hidden">
-        <div class="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
-        <div class="relative z-10 p-6 md:p-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <p class="text-teal-100 text-sm font-medium">Selamat datang,</p>
-                    <h2 class="text-2xl md:text-3xl font-bold mt-1">{{ auth()->user()->name }} 👋</h2>
-                    <p class="text-teal-100 mt-2 text-sm">
-                        {{ now()->format('l, d F Y') }} • {{ now()->format('H:i') }} WIB
-                    </p>
-                </div>
-                <div class="flex gap-3">
-                    <a href="{{ route('goods-receipts.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur hover:bg-white/30 text-white rounded-xl border border-white/20 transition">
-                        <span>📥</span> Terima Barang
-                    </a>
-                    <a href="{{ route('goods-issues.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur hover:bg-white/30 text-white rounded-xl border border-white/20 transition">
-                        <span>📤</span> Kirim Barang
-                    </a>
-                </div>
-            </div>
+<div class="space-y-5">
+    {{-- Header actions --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <p class="text-sm text-gray-500">Halo, <span class="font-medium text-gray-900">{{ auth()->user()->name }}</span></p>
+            <p class="text-xs text-gray-400 mt-0.5">{{ now()->format('l, d F Y') }} · {{ now()->format('H:i') }} WIB</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            @can('goods_receipt.create')
+            <a href="{{ route('goods-receipts.create') }}"
+               class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">
+                Terima barang
+            </a>
+            @endcan
+            @can('goods_issue.create')
+            <a href="{{ route('goods-issues.create') }}"
+               class="inline-flex items-center px-3 py-2 text-sm font-semibold rounded-lg text-white hover:opacity-90"
+               style="background: #4f46e5;">
+                Kirim barang
+            </a>
+            @endcan
         </div>
     </div>
 
-    <!-- Stat Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <!-- Total Products -->
-        <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
-            <div class="flex items-start justify-between">
-                <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-500">Total Produk</p>
-                    <p class="text-3xl font-bold text-gray-800 mt-2">{{ number_format($stats['products']) }}</p>
-                    <p class="text-xs text-teal-600 mt-2">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-teal-100 text-teal-700 text-[10px] font-semibold">
-                            {{ $stats['suppliers'] }} Supplier
-                        </span>
-                    </p>
-                </div>
-                <div class="w-14 h-14 bg-gradient-to-br from-teal-400 to-teal-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform">
-                    📦
-                </div>
-            </div>
+    {{-- KPI --}}
+    <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
+        <div class="rounded-lg border border-gray-200 bg-white p-4">
+            <p class="text-xs font-medium text-gray-500">Total produk</p>
+            <p class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">{{ number_format($stats['products']) }}</p>
+            <p class="mt-2 text-[11px] text-gray-500">{{ $stats['suppliers'] }} supplier</p>
         </div>
-
-        <!-- Total Stock -->
-        <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
-            <div class="flex items-start justify-between">
-                <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-500">Total Stok</p>
-                    <p class="text-3xl font-bold text-gray-800 mt-2">{{ number_format($stats['totalStock']) }}</p>
-                    <p class="text-xs text-blue-600 mt-2">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px] font-semibold">
-                            {{ $stats['warehouses'] }} Lokasi
-                        </span>
-                    </p>
-                </div>
-                <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform">
-                    🏭
-                </div>
-            </div>
+        <div class="rounded-lg border border-gray-200 bg-white p-4">
+            <p class="text-xs font-medium text-gray-500">Total stok</p>
+            <p class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">{{ number_format($stats['totalStock']) }}</p>
+            <p class="mt-2 text-[11px] text-gray-500">{{ $stats['warehouses'] }} lokasi</p>
         </div>
-
-        <!-- Today Receipts -->
-        <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
-            <div class="flex items-start justify-between">
-                <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-500">Penerimaan Hari Ini</p>
-                    <p class="text-3xl font-bold text-green-700 mt-2">{{ number_format($stats['todayReceipts']) }}</p>
-                    <p class="text-xs text-green-600 mt-2">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-green-100 text-green-700 text-[10px] font-semibold">
-                            +{{ number_format($stats['todayReceiptQty']) }} unit
-                        </span>
-                    </p>
-                </div>
-                <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform">
-                    📥
-                </div>
-            </div>
+        <div class="rounded-lg border border-gray-200 bg-white p-4">
+            <p class="text-xs font-medium text-gray-500">Penerimaan hari ini</p>
+            <p class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">{{ number_format($stats['todayReceipts']) }}</p>
+            <p class="mt-2 text-[11px] text-emerald-600">+{{ number_format($stats['todayReceiptQty']) }} unit</p>
         </div>
-
-        <!-- Today Issues -->
-        <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
-            <div class="flex items-start justify-between">
-                <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-500">Pengiriman Hari Ini</p>
-                    <p class="text-3xl font-bold text-orange-700 mt-2">{{ number_format($stats['todayIssues']) }}</p>
-                    <p class="text-xs text-orange-600 mt-2">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-orange-100 text-orange-700 text-[10px] font-semibold">
-                            -{{ number_format($stats['todayIssueQty']) }} unit
-                        </span>
-                    </p>
-                </div>
-                <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform">
-                    📤
-                </div>
-            </div>
+        <div class="rounded-lg border border-gray-200 bg-white p-4">
+            <p class="text-xs font-medium text-gray-500">Pengiriman hari ini</p>
+            <p class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">{{ number_format($stats['todayIssues']) }}</p>
+            <p class="mt-2 text-[11px] text-indigo-600">-{{ number_format($stats['todayIssueQty']) }} unit</p>
         </div>
     </div>
 
-    <!-- Pending Alerts -->
+    {{-- Attention strip --}}
     @if($stats['pendingReceipts'] > 0 || $stats['pendingStockopnames'] > 0 || $stats['lowStock'] > 0 || $stats['nearExpiry'] > 0 || $stats['expired'] > 0)
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
         @if($stats['pendingReceipts'] > 0)
-        <a href="{{ route('goods-receipts.index', ['status' => 'pending']) }}" class="flex items-center gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl hover:bg-yellow-100 transition">
-            <div class="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center text-xl">⏳</div>
+        <a href="{{ route('goods-receipts.index', ['status' => 'pending']) }}"
+           class="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 hover:bg-amber-100/80 transition">
             <div>
-                <p class="font-semibold text-yellow-800">{{ $stats['pendingReceipts'] }} Penerimaan Pending</p>
-                <p class="text-sm text-yellow-600">Menunggu verifikasi</p>
+                <p class="text-sm font-medium text-amber-900">{{ $stats['pendingReceipts'] }} penerimaan pending</p>
+                <p class="text-xs text-amber-700">Menunggu verifikasi</p>
             </div>
+            <span class="text-xs font-medium text-amber-800">Buka →</span>
         </a>
         @endif
 
         @if($stats['pendingStockopnames'] > 0)
-        <a href="{{ route('stockopnames.index', ['status' => 'pending_approval']) }}" class="flex items-center gap-4 p-4 bg-purple-50 border border-purple-200 rounded-xl hover:bg-purple-100 transition">
-            <div class="w-12 h-12 bg-purple-400 rounded-xl flex items-center justify-center text-xl text-white">📋</div>
+        <a href="{{ route('stockopnames.index', ['status' => 'pending_approval']) }}"
+           class="flex items-center justify-between gap-3 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 hover:bg-violet-100/80 transition">
             <div>
-                <p class="font-semibold text-purple-800">{{ $stats['pendingStockopnames'] }} Stock Opname Pending</p>
-                <p class="text-sm text-purple-600">Menunggu approval</p>
+                <p class="text-sm font-medium text-violet-900">{{ $stats['pendingStockopnames'] }} stock opname pending</p>
+                <p class="text-xs text-violet-700">Menunggu approval</p>
             </div>
+            <span class="text-xs font-medium text-violet-800">Buka →</span>
         </a>
         @endif
 
         @can('report.view')
         @if($stats['lowStock'] > 0)
-        <a href="{{ route('reports.low-stock') }}" class="flex items-center gap-4 p-4 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition">
-            <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-xl text-white">⚠️</div>
+        <a href="{{ route('reports.low-stock') }}"
+           class="flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 hover:bg-red-100/80 transition">
             <div>
-                <p class="font-semibold text-red-800">{{ $stats['lowStock'] }} Low Stock</p>
-                <p class="text-sm text-red-600">On-hand ≤ min stock</p>
+                <p class="text-sm font-medium text-red-900">{{ $stats['lowStock'] }} low stock</p>
+                <p class="text-xs text-red-700">On-hand ≤ min stock</p>
             </div>
+            <span class="text-xs font-medium text-red-800">Buka →</span>
         </a>
         @endif
         @if($stats['nearExpiry'] > 0)
-        <a href="{{ route('reports.aging') }}" class="flex items-center gap-4 p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition">
-            <div class="w-12 h-12 bg-amber-400 rounded-xl flex items-center justify-center text-xl">⏳</div>
+        <a href="{{ route('reports.aging') }}"
+           class="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 hover:bg-amber-100/80 transition">
             <div>
-                <p class="font-semibold text-amber-800">{{ number_format($stats['nearExpiry']) }} Near Expiry</p>
-                <p class="text-sm text-amber-600">Qty ≤ 60 hari</p>
+                <p class="text-sm font-medium text-amber-900">{{ number_format($stats['nearExpiry']) }} near expiry</p>
+                <p class="text-xs text-amber-700">Qty ≤ 60 hari</p>
             </div>
+            <span class="text-xs font-medium text-amber-800">Aging →</span>
         </a>
         @endif
         @if($stats['expired'] > 0)
-        <a href="{{ route('reports.aging') }}" class="flex items-center gap-4 p-4 bg-rose-50 border border-rose-200 rounded-xl hover:bg-rose-100 transition">
-            <div class="w-12 h-12 bg-rose-500 rounded-xl flex items-center justify-center text-xl text-white">☠️</div>
+        <a href="{{ route('reports.aging') }}"
+           class="flex items-center justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 hover:bg-rose-100/80 transition">
             <div>
-                <p class="font-semibold text-rose-800">{{ number_format($stats['expired']) }} Expired</p>
-                <p class="text-sm text-rose-600">Perlu tindakan FEFO</p>
+                <p class="text-sm font-medium text-rose-900">{{ number_format($stats['expired']) }} expired</p>
+                <p class="text-xs text-rose-700">Prioritas alokasi by expiry (FEFO)</p>
             </div>
+            <span class="text-xs font-medium text-rose-800">Aging →</span>
         </a>
         @endif
         @endcan
     </div>
     @endif
 
-    <!-- Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Recent Receipts -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100 flex items-center justify-between">
-                <h3 class="text-lg font-bold text-green-800 flex items-center gap-2">
-                    <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-sm">📥</span>
-                    Penerimaan Terbaru
-                </h3>
-                <a href="{{ route('goods-receipts.index') }}" class="text-xs font-medium text-green-600 hover:text-green-700">
-                    Lihat Semua →
-                </a>
+    {{-- Recent activity --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <section class="rounded-lg border border-gray-200 bg-white overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-900">Penerimaan terbaru</h3>
+                <a href="{{ route('goods-receipts.index') }}" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">Semua</a>
             </div>
-            <div class="p-5">
-                <div class="space-y-3">
-                    @forelse($recentReceipts as $receipt)
-                    <a href="{{ route('goods-receipts.show', $receipt) }}" class="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-green-50 border border-gray-100 hover:border-green-200 transition-all group">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-xs shadow">
-                            {{ substr($receipt->receipt_number, -4) }}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-gray-800 truncate group-hover:text-green-700 transition-colors">
-                                {{ $receipt->receipt_number }}
-                            </p>
-                            <p class="text-xs text-gray-500">{{ $receipt->supplier->name ?? '-' }} • {{ $receipt->receipt_date->format('d M Y') }}</p>
-                        </div>
-                        <span class="px-2 py-1 text-xs font-medium rounded-full {{ $receipt->status === 'verified' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                            {{ ucfirst($receipt->status) }}
-                        </span>
-                    </a>
-                    @empty
-                    <div class="text-center py-8 text-gray-400">
-                        <div class="text-4xl mb-2">📭</div>
-                        <p class="text-sm">Belum ada penerimaan</p>
+            <div class="divide-y divide-gray-100">
+                @forelse($recentReceipts as $receipt)
+                <a href="{{ route('goods-receipts.show', $receipt) }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-900 truncate">{{ $receipt->receipt_number }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ $receipt->supplier->name ?? '-' }} · {{ $receipt->receipt_date->format('d M Y') }}</p>
                     </div>
-                    @endforelse
-                </div>
+                    <span class="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium
+                        {{ $receipt->status === 'verified' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
+                        {{ ucfirst($receipt->status) }}
+                    </span>
+                </a>
+                @empty
+                <div class="px-4 py-10 text-center text-sm text-gray-400">Belum ada penerimaan</div>
+                @endforelse
             </div>
-        </div>
+        </section>
 
-        <!-- Recent Issues -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100 flex items-center justify-between">
-                <h3 class="text-lg font-bold text-orange-800 flex items-center gap-2">
-                    <span class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center text-sm">📤</span>
-                    Pengiriman Terbaru
-                </h3>
-                <a href="{{ route('goods-issues.index') }}" class="text-xs font-medium text-orange-600 hover:text-orange-700">
-                    Lihat Semua →
-                </a>
+        <section class="rounded-lg border border-gray-200 bg-white overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-900">Pengiriman terbaru</h3>
+                <a href="{{ route('goods-issues.index') }}" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">Semua</a>
             </div>
-            <div class="p-5">
-                <div class="space-y-3">
-                    @forelse($recentIssues as $issue)
-                    <a href="{{ route('goods-issues.show', $issue) }}" class="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-orange-50 border border-gray-100 hover:border-orange-200 transition-all group">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-xs shadow">
-                            {{ substr($issue->issue_number, -4) }}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-gray-800 truncate group-hover:text-orange-700 transition-colors">
-                                {{ $issue->issue_number }}
-                            </p>
-                            <p class="text-xs text-gray-500">{{ $issue->destination }} • {{ $issue->issue_date->format('d M Y') }}</p>
-                        </div>
-                        <span class="px-2 py-1 text-xs font-medium rounded-full 
-                            {{ $issue->status === 'delivered' ? 'bg-green-100 text-green-700' : '' }}
-                            {{ $issue->status === 'shipped' ? 'bg-blue-100 text-blue-700' : '' }}
-                            {{ $issue->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : '' }}">
-                            {{ ucfirst($issue->status) }}
-                        </span>
-                    </a>
-                    @empty
-                    <div class="text-center py-8 text-gray-400">
-                        <div class="text-4xl mb-2">📭</div>
-                        <p class="text-sm">Belum ada pengiriman</p>
+            <div class="divide-y divide-gray-100">
+                @forelse($recentIssues as $issue)
+                <a href="{{ route('goods-issues.show', $issue) }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-900 truncate">{{ $issue->issue_number }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ $issue->destination }} · {{ $issue->issue_date->format('d M Y') }}</p>
                     </div>
-                    @endforelse
-                </div>
+                    <span class="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium border
+                        {{ $issue->status === 'delivered' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : '' }}
+                        {{ $issue->status === 'shipped' ? 'bg-blue-50 text-blue-700 border-blue-200' : '' }}
+                        {{ $issue->status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-200' : '' }}
+                        {{ !in_array($issue->status, ['delivered','shipped','pending']) ? 'bg-gray-50 text-gray-600 border-gray-200' : '' }}">
+                        {{ ucfirst($issue->status) }}
+                    </span>
+                </a>
+                @empty
+                <div class="px-4 py-10 text-center text-sm text-gray-400">Belum ada pengiriman</div>
+                @endforelse
             </div>
-        </div>
+        </section>
     </div>
 
-    <!-- Recent Mutations -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-violet-50 border-b border-purple-100 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-purple-800 flex items-center gap-2">
-                <span class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center text-sm">🔄</span>
-                Mutasi Stok Terbaru
-            </h3>
-            <a href="{{ route('reports.mutations') }}" class="text-xs font-medium text-purple-600 hover:text-purple-700">
-                Lihat Semua →
-            </a>
+    <section class="rounded-lg border border-gray-200 bg-white overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900">Mutasi stok terbaru</h3>
+            <a href="{{ route('reports.mutations') }}" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">Semua</a>
         </div>
-        <div class="p-5">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <th class="px-4 py-3">Waktu</th>
-                            <th class="px-4 py-3">Produk</th>
-                            <th class="px-4 py-3">Dari</th>
-                            <th class="px-4 py-3">Ke</th>
-                            <th class="px-4 py-3">Qty</th>
-                            <th class="px-4 py-3">Referensi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($recentMutations as $mut)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $mut->created_at->format('d/m H:i') }}</td>
-                            <td class="px-4 py-3 text-sm font-medium text-gray-800">{{ $mut->product->name ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $mut->fromWarehouse->name ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $mut->toWarehouse->name ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm font-semibold {{ $mut->quantity > 0 ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $mut->quantity > 0 ? '+' : '' }}{{ number_format($mut->quantity) }}
-                            </td>
-                            <td class="px-4 py-3 text-xs text-gray-500">{{ ucfirst(str_replace('_', ' ', $mut->reference_type)) }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="px-4 py-8 text-center text-gray-400">
-                                <div class="text-3xl mb-2">📊</div>
-                                <p class="text-sm">Belum ada mutasi stok</p>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-[11px] font-medium text-gray-500 uppercase tracking-wide border-b border-gray-100 bg-gray-50/80">
+                        <th class="px-4 py-2.5">Waktu</th>
+                        <th class="px-4 py-2.5">Produk</th>
+                        <th class="px-4 py-2.5">Dari</th>
+                        <th class="px-4 py-2.5">Ke</th>
+                        <th class="px-4 py-2.5">Qty</th>
+                        <th class="px-4 py-2.5">Referensi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @forelse($recentMutations as $mut)
+                    <tr class="hover:bg-gray-50/80">
+                        <td class="px-4 py-2.5 text-gray-600 whitespace-nowrap">{{ $mut->created_at->format('d/m H:i') }}</td>
+                        <td class="px-4 py-2.5 font-medium text-gray-900">{{ $mut->product->name ?? '-' }}</td>
+                        <td class="px-4 py-2.5 text-gray-600">{{ $mut->fromWarehouse->name ?? '-' }}</td>
+                        <td class="px-4 py-2.5 text-gray-600">{{ $mut->toWarehouse->name ?? '-' }}</td>
+                        <td class="px-4 py-2.5 font-semibold {{ $mut->quantity > 0 ? 'text-emerald-600' : 'text-red-600' }}">
+                            {{ $mut->quantity > 0 ? '+' : '' }}{{ number_format($mut->quantity) }}
+                        </td>
+                        <td class="px-4 py-2.5 text-xs text-gray-500">{{ ucfirst(str_replace('_', ' ', $mut->reference_type)) }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-4 py-10 text-center text-gray-400">Belum ada mutasi stok</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-    </div>
+    </section>
 </div>
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Location;
 use App\Models\ProductStock;
 use App\Models\Stockopname;
@@ -76,6 +77,20 @@ class CycleCountController extends Controller
             return $so;
         });
 
+        AuditLog::log(
+            'ops.cycle.create',
+            Stockopname::class,
+            $so->id,
+            'Cycle count dibuat: '.$so->stockopname_number,
+            null,
+            [
+                'stockopname_number' => $so->stockopname_number,
+                'warehouse_id' => $so->warehouse_id,
+                'location_id' => $so->location_id,
+                'lines' => $so->items()->count(),
+            ]
+        );
+
         return redirect()->route('cycle-counts.show', $so)
             ->with('success', 'Cycle count '.$so->stockopname_number.' dibuat ('.$so->items()->count().' lines).');
     }
@@ -103,6 +118,7 @@ class CycleCountController extends Controller
             'items.*.physical_qty' => 'nullable|integer|min:0',
         ]);
 
+        $changed = 0;
         foreach ($validated['items'] as $row) {
             $item = StockopnameItem::where('id', $row['id'])
                 ->where('stockopname_id', $cycle_count->id)
@@ -115,7 +131,17 @@ class CycleCountController extends Controller
                 'physical_qty' => $phys,
                 'difference' => $phys === null ? null : ((int) $phys - (int) $item->system_qty),
             ]);
+            $changed++;
         }
+
+        AuditLog::log(
+            'ops.cycle.update_counts',
+            Stockopname::class,
+            $cycle_count->id,
+            'Cycle count hitungan disimpan: '.$cycle_count->stockopname_number,
+            null,
+            ['lines_touched' => $changed]
+        );
 
         return back()->with('success', 'Hitungan cycle count disimpan.');
     }
@@ -127,6 +153,15 @@ class CycleCountController extends Controller
         }
 
         $cycle_count->update(['status' => 'pending_approval']);
+
+        AuditLog::log(
+            'ops.cycle.submit',
+            Stockopname::class,
+            $cycle_count->id,
+            'Cycle count submitted: '.$cycle_count->stockopname_number,
+            ['status' => 'draft'],
+            ['status' => 'pending_approval']
+        );
 
         return back()->with('success', 'Cycle count submitted (pending_approval).');
     }

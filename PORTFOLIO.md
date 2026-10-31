@@ -86,7 +86,9 @@ composer install && npm install
 cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 npm run build
-php artisan serve --port=8000
+# Local: APP_PORT/PORT default 8100 — see Live/PORTS.md
+php artisan serve --host=127.0.0.1 --port="${APP_PORT:-8100}"
+# http://127.0.0.1:8100
 ```
 
 Smoke: `python smoke_w1.py` · `smoke_w2.py` · `smoke_w3.py` · `smoke_w4w6.py`

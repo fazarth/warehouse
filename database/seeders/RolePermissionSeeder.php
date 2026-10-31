@@ -43,17 +43,18 @@ class RolePermissionSeeder extends Seeder
             'user.view', 'user.create', 'user.edit', 'user.delete',
             'role.manage',
             'module.manage',
+            'audit.view',
         ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        // Super Admin: everything
+        // Super Admin: everything (includes audit.view)
         $superAdmin = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
         $superAdmin->syncPermissions(Permission::where('guard_name', 'web')->get());
 
-        // Admin Gudang: full ops + users + app settings; NO role/module mapping
+        // Admin Gudang: full ops + users + app settings; NO role/module mapping / audit log
         $adminGudang = Role::firstOrCreate(['name' => 'Admin Gudang', 'guard_name' => 'web']);
         $adminGudang->syncPermissions([
             'warehouse.view', 'warehouse.create', 'warehouse.edit', 'warehouse.delete',

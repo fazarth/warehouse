@@ -13,12 +13,12 @@
         @if($count->status === 'draft')
         <form method="POST" action="{{ route('cycle-counts.submit', $count) }}" onsubmit="return confirm('Submit cycle count?')">
             @csrf
-            <button class="px-4 py-2 bg-amber-600 text-white rounded-xl text-sm">Submit</button>
+            <button class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm">Submit</button>
         </form>
         @endif
     </div>
 
-    <form method="POST" action="{{ route('cycle-counts.update', $count) }}" class="bg-white rounded-2xl border p-6">
+    <form method="POST" action="{{ route('cycle-counts.update', $count) }}" class="bg-white rounded-xl border p-6">
         @csrf
         @method('PUT')
         <table class="w-full text-sm">
@@ -56,7 +56,7 @@
         </table>
         @if($count->status === 'draft')
         <div class="mt-4">
-            <button class="px-4 py-2 bg-teal-600 text-white rounded-xl text-sm">Simpan hitungan</button>
+            <button class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm">Simpan hitungan</button>
         </div>
         @endif
     </form>

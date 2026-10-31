@@ -18,7 +18,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white rounded-xl p-4 border border-gray-100">
             <p class="text-sm text-gray-500">Saldo Saat Ini</p>
-            <p class="text-3xl font-bold text-teal-600">{{ number_format($currentStock) }} {{ $product->unit }}</p>
+            <p class="text-3xl font-bold text-indigo-600">{{ number_format($currentStock) }} {{ $product->unit }}</p>
         </div>
         <div class="bg-white rounded-xl p-4 border border-gray-100">
             <p class="text-sm text-gray-500">Masuk (Period)</p>
@@ -31,7 +31,7 @@
     </div>
 
     <!-- Filter -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
         <form method="GET" class="flex flex-wrap gap-4 items-end">
             <div>
                 <label class="block text-xs text-gray-500 mb-1">Dari</label>
@@ -41,14 +41,14 @@
                 <label class="block text-xs text-gray-500 mb-1">Sampai</label>
                 <input type="date" name="end_date" value="{{ $endDate }}" class="px-4 py-2 rounded-xl border border-gray-200">
             </div>
-            <button type="submit" class="px-6 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition">🔍 Filter</button>
+            <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">Filter</button>
         </form>
     </div>
 
     <!-- Mutation History -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 bg-gradient-to-r from-teal-50 to-emerald-50 border-b border-teal-100">
-            <h3 class="font-bold text-teal-800">Riwayat Mutasi</h3>
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+            <h3 class="font-bold text-slate-800">Riwayat Mutasi</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full">

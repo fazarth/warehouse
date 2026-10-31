@@ -6,16 +6,33 @@
 
 @section('content')
 <div class="space-y-6">
+    @if(session('import_errors'))
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900">
+        <p class="font-semibold mb-2">Beberapa baris import dilewati:</p>
+        <ul class="list-disc pl-5 space-y-1">
+            @foreach(session('import_errors') as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <p class="text-gray-600">Total {{ $suppliers->total() }} supplier</p>
         @can('supplier.create')
-                <a href="{{ route('suppliers.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition">
-                    <span>➕</span> Tambah Supplier
-                </a>
-                @endcan
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('suppliers.import') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition text-sm font-semibold">
+                ⬆ Import CSV/XLSX
+            </a>
+            <a href="{{ route('suppliers.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition">
+                Tambah Supplier
+            </a>
+        </div>
+        @endcan
     </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50">
@@ -32,7 +49,7 @@
                     @forelse($suppliers as $supplier)
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4">
-                            <span class="font-mono text-sm font-semibold text-teal-600">{{ $supplier->code }}</span>
+                            <span class="font-mono text-sm font-semibold text-indigo-600">{{ $supplier->code }}</span>
                         </td>
                         <td class="px-6 py-4">
                             <p class="font-semibold text-gray-800">{{ $supplier->name }}</p>
@@ -50,12 +67,12 @@
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 @can('supplier.edit')
-                                                                <a href="{{ route('suppliers.edit', $supplier) }}" class="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition">✏️</a>
+                                                                <a href="{{ route('suppliers.edit', $supplier) }}" class="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition">Edit</a>
                                                                 @endcan
                                                                 @can('supplier.delete')
                                                                 <form action="{{ route('suppliers.destroy', $supplier) }}" method="POST" onsubmit="return confirm('Hapus supplier ini?')">
                                                                     @csrf @method('DELETE')
-                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">🗑️</button>
+                                                                    <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">Hapus</button>
                                                                 </form>
                                                                 @endcan
                             </div>
@@ -64,7 +81,7 @@
                     @empty
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center text-gray-400">
-                            <div class="text-4xl mb-2">🚚</div>
+                            <div class="text-4xl mb-2">Ship</div>
                             <p>Belum ada supplier</p>
                         </td>
                     </tr>

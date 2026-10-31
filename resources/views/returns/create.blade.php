@@ -7,7 +7,7 @@
 <div x-data="{ items: [{}] }">
 <form method="POST" action="{{ route('returns.store') }}" class="space-y-6">
     @csrf
-    <div class="bg-white rounded-2xl border p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-xl border p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
             <label class="text-sm font-medium">Source *</label>
             <select name="source" required class="w-full mt-1 rounded-xl border-gray-200">
@@ -56,10 +56,10 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl border p-6">
+    <div class="bg-white rounded-xl border p-6">
         <div class="flex justify-between mb-3">
             <h3 class="font-bold">Items</h3>
-            <button type="button" @click="items.push({})" class="text-sm px-3 py-1 bg-teal-50 text-teal-700 rounded-lg">+ Item</button>
+            <button type="button" @click="items.push({})" class="text-sm px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg">+ Item</button>
         </div>
         <table class="w-full text-sm">
             <thead class="bg-gray-50 text-xs uppercase text-gray-500">
@@ -108,7 +108,7 @@
     </div>
 
     <div class="flex gap-3">
-        <button class="px-6 py-3 bg-teal-600 text-white rounded-xl">Simpan Draft</button>
+        <button class="px-6 py-3 bg-indigo-600 text-white rounded-xl">Simpan Draft</button>
         <a href="{{ route('returns.index') }}" class="px-6 py-3 bg-gray-100 rounded-xl">Batal</a>
     </div>
 </form>

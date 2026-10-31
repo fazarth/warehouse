@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-100">
             <h3 class="font-bold text-purple-800 flex items-center gap-2">
                 <span class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center text-sm">⚙️</span>
@@ -20,7 +20,7 @@
             
             <!-- Current Logo Preview -->
             <div class="flex items-center gap-4 pb-4 border-b border-gray-100">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-lg overflow-hidden">
+                <div class="w-16 h-16 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg overflow-hidden">
                     @if($settings['app_logo'] ?? null)
                         <img src="{{ asset('storage/' . $settings['app_logo']) }}" alt="Logo" class="w-full h-full object-cover">
                     @else
@@ -36,7 +36,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Nama Aplikasi</label>
                 <input type="text" name="app_name" value="{{ old('app_name', $settings['app_name'] ?? '') }}" 
-                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 @error('app_name') border-red-300 @enderror" 
+                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @error('app_name') border-red-300 @enderror" 
                        placeholder="Contoh: Warehouse Management" required>
                 @error('app_name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
@@ -44,7 +44,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Tagline / Deskripsi Singkat</label>
                 <input type="text" name="app_tagline" value="{{ old('app_tagline', $settings['app_tagline'] ?? '') }}" 
-                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 @error('app_tagline') border-red-300 @enderror" 
+                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 @error('app_tagline') border-red-300 @enderror" 
                        placeholder="Contoh: Sistem Manajemen Gudang Terpadu">
                 @error('app_tagline')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
@@ -82,8 +82,8 @@
             </div>
 
             <div class="flex gap-3 pt-4">
-                <button type="submit" class="flex-1 px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-xl transition">
-                    💾 Simpan Pengaturan
+                <button type="submit" class="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition">
+                    Simpan Pengaturan
                 </button>
                 <a href="{{ route('settings.index') }}" class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition">
                     Kembali

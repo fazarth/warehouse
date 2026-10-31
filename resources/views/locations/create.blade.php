@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="max-w-2xl">
-    <form method="POST" action="{{ route('locations.store') }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+    <form method="POST" action="{{ route('locations.store') }}" class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
         @csrf
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Gudang *</label>
@@ -68,12 +68,12 @@
             <textarea name="description" rows="2" class="w-full rounded-xl border-gray-200">{{ old('description') }}</textarea>
         </div>
         <label class="inline-flex items-center gap-2 text-sm">
-            <input type="checkbox" name="is_active" value="1" @checked(old('is_active', true)) class="rounded border-gray-300 text-teal-600">
+            <input type="checkbox" name="is_active" value="1" @checked(old('is_active', true)) class="rounded border-gray-300 text-indigo-600">
             Aktif
         </label>
         <div class="flex justify-end gap-3 pt-2">
             <a href="{{ route('locations.index') }}" class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-xl">Batal</a>
-            <button class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl">Simpan + Generate QR</button>
+            <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">Simpan + Generate QR</button>
         </div>
     </form>
 </div>

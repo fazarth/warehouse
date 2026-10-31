@@ -4,7 +4,7 @@
 @section('page-title', 'Buat Cycle Count')
 
 @section('content')
-<form method="POST" action="{{ route('cycle-counts.store') }}" class="max-w-xl space-y-4 bg-white rounded-2xl border p-6">
+<form method="POST" action="{{ route('cycle-counts.store') }}" class="max-w-xl space-y-4 bg-white rounded-xl border p-6">
     @csrf
     <div>
         <label class="text-sm font-medium">Warehouse *</label>
@@ -32,7 +32,7 @@
         <textarea name="notes" rows="2" class="w-full mt-1 rounded-xl border-gray-200"></textarea>
     </div>
     <div class="flex gap-3">
-        <button class="px-6 py-3 bg-teal-600 text-white rounded-xl">Generate lines</button>
+        <button class="px-6 py-3 bg-indigo-600 text-white rounded-xl">Generate lines</button>
         <a href="{{ route('cycle-counts.index') }}" class="px-6 py-3 bg-gray-100 rounded-xl">Batal</a>
     </div>
 </form>

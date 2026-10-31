@@ -22,7 +22,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h3 class="font-bold text-gray-800 mb-4">Informasi</h3>
             <dl class="space-y-3 text-sm">
                 <div class="flex justify-between">
@@ -33,7 +33,7 @@
                 <div class="flex justify-between">
                     <dt class="text-gray-500">PO</dt>
                     <dd>
-                        <a class="text-teal-600 hover:underline" href="{{ route('purchase-orders.show', $goodsReceipt->purchaseOrder) }}">
+                        <a class="text-indigo-600 hover:underline" href="{{ route('purchase-orders.show', $goodsReceipt->purchaseOrder) }}">
                             {{ $goodsReceipt->purchaseOrder->po_number }}
                         </a>
                     </dd>
@@ -70,7 +70,7 @@
             @endif
         </div>
 
-        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h3 class="font-bold text-gray-800 mb-4">Daftar Item ({{ $goodsReceipt->items->count() }})</h3>
 
             @if($goodsReceipt->status === 'pending' && auth()->user()->can('goods_receipt.verify'))
@@ -115,7 +115,7 @@
                 <label class="inline-flex items-center gap-2 text-sm text-gray-600">
                     <input type="checkbox" name="skip_qc" value="1" class="rounded border-gray-300"> Skip QC (semua pass)
                 </label>
-                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl" onclick="return confirm('QC + verifikasi GR? Stok pass masuk staging & putaway dibuat.')">
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl" onclick="return confirm('QC + verifikasi GR? Stok pass masuk staging & putaway dibuat.')">
                     ✓ QC & Verifikasi
                 </button>
             </form>
@@ -154,16 +154,16 @@
     </div>
 
     @if($goodsReceipt->putawayTasks->isNotEmpty())
-    <div class="bg-white rounded-2xl border p-6">
+    <div class="bg-white rounded-xl border p-6">
         <div class="flex items-center justify-between mb-3">
             <h3 class="font-bold">Put Away Tasks</h3>
-            <a href="{{ route('putaways.index') }}" class="text-sm text-teal-600">Semua putaway →</a>
+            <a href="{{ route('putaways.index') }}" class="text-sm text-indigo-600">Semua putaway →</a>
         </div>
         <ul class="space-y-2 text-sm">
             @foreach($goodsReceipt->putawayTasks as $task)
             <li class="flex justify-between border-b py-2">
                 <div>
-                    <a href="{{ route('putaways.show', $task) }}" class="font-mono text-teal-700 hover:underline">{{ $task->task_number }}</a>
+                    <a href="{{ route('putaways.show', $task) }}" class="font-mono text-indigo-700 hover:underline">{{ $task->task_number }}</a>
                     <span class="text-gray-400">· {{ $task->product?->sku }} · qty {{ $task->quantity }}</span>
                     <span class="text-gray-400">· suggest {{ $task->suggestedLocation?->code ?? '—' }}</span>
                 </div>

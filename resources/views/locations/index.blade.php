@@ -32,13 +32,13 @@
             <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm">Filter</button>
         </form>
         @can('location.create')
-        <a href="{{ route('locations.create', ['warehouse_id' => $warehouseId]) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl">
-            ➕ Tambah Lokasi
+        <a href="{{ route('locations.create', ['warehouse_id' => $warehouseId]) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+            + Tambah Lokasi
         </a>
         @endcan
     </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50">
@@ -55,22 +55,22 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($locations as $loc)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 font-mono text-sm font-semibold text-teal-600">{{ $loc->code }}</td>
+                        <td class="px-6 py-4 font-mono text-sm font-semibold text-indigo-600">{{ $loc->code }}</td>
                         <td class="px-6 py-4">
                             <p class="font-semibold text-gray-800">{{ $loc->name }}</p>
                             <p class="text-xs text-gray-400">{{ $loc->warehouse?->code }}</p>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="px-2 py-1 text-xs rounded-full bg-teal-50 text-teal-700">{{ \App\Models\Location::typeLabel($loc->type) }}</span>
+                            <span class="px-2 py-1 text-xs rounded-full bg-indigo-50 text-indigo-700">{{ \App\Models\Location::typeLabel($loc->type) }}</span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $loc->parent?->code ?? '—' }}</td>
                         <td class="px-6 py-4 font-mono text-xs">{{ $loc->qrCode?->code ?? '—' }}</td>
                         <td class="px-6 py-4 text-sm">{{ $loc->capacity ?? '∞' }}</td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-1">
-                                <a href="{{ route('locations.show', $loc) }}" class="p-2 hover:bg-teal-50 rounded-lg" title="Detail">👁️</a>
-                                <a href="{{ route('locations.label', $loc) }}" class="p-2 hover:bg-teal-50 rounded-lg" title="Label">🖨️</a>
-                                <a href="{{ route('locations.edit', $loc) }}" class="p-2 hover:bg-teal-50 rounded-lg" title="Edit">✏️</a>
+                                <a href="{{ route('locations.show', $loc) }}" class="p-2 hover:bg-indigo-50 rounded-lg" title="Detail">Detail</a>
+                                <a href="{{ route('locations.label', $loc) }}" class="p-2 hover:bg-indigo-50 rounded-lg" title="Label">🖨️</a>
+                                <a href="{{ route('locations.edit', $loc) }}" class="p-2 hover:bg-indigo-50 rounded-lg" title="Edit">Edit</a>
                             </div>
                         </td>
                     </tr>

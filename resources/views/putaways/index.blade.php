@@ -14,7 +14,7 @@
         </select>
     </form>
 
-    <div class="bg-white rounded-2xl border overflow-hidden">
+    <div class="bg-white rounded-xl border overflow-hidden">
         <table class="w-full text-sm">
             <thead class="bg-gray-50 text-xs uppercase text-gray-500">
                 <tr>
@@ -30,7 +30,7 @@
             <tbody class="divide-y">
                 @forelse($tasks as $task)
                 <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3 font-mono text-teal-700">{{ $task->task_number }}</td>
+                    <td class="px-4 py-3 font-mono text-indigo-700">{{ $task->task_number }}</td>
                     <td class="px-4 py-3">
                         <div class="font-medium">{{ $task->product?->name }}</div>
                         <div class="text-xs text-gray-400">{{ $task->batch_number }}</div>
@@ -40,7 +40,7 @@
                     <td class="px-4 py-3 font-mono">{{ $task->suggestedLocation?->code ?? '—' }}</td>
                     <td class="px-4 py-3 font-mono">{{ $task->location?->code ?? '—' }}</td>
                     <td class="px-4 py-3 text-right">
-                        <a href="{{ route('putaways.show', $task) }}" class="text-teal-600 hover:underline">
+                        <a href="{{ route('putaways.show', $task) }}" class="text-indigo-600 hover:underline">
                             {{ $task->status === 'pending' ? 'Proses' : 'Detail' }}
                         </a>
                     </td>

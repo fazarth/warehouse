@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Location;
 use App\Models\PutawayTask;
 use App\Services\PutawayService;
@@ -50,11 +51,25 @@ class PutawayController extends Controller
                 $putaway->update(['notes' => $validated['notes']]);
             }
 
+            $before = ['status' => $putaway->status, 'location_id' => $putaway->location_id];
             $this->putaway->complete(
                 $putaway,
                 (int) $validated['location_id'],
                 isset($validated['quantity']) ? (int) $validated['quantity'] : null,
                 auth()->id()
+            );
+            $putaway->refresh();
+            AuditLog::log(
+                'ops.putaway.complete',
+                PutawayTask::class,
+                $putaway->id,
+                'Putaway selesai: '.$putaway->task_number,
+                $before,
+                [
+                    'status' => $putaway->status,
+                    'location_id' => $putaway->location_id,
+                    'quantity' => $validated['quantity'] ?? null,
+                ]
             );
 
             return redirect()->route('putaways.index')

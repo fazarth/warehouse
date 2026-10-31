@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
         <form method="GET" class="flex flex-wrap gap-4 items-end">
             <div>
                 <label class="block text-xs text-gray-500 mb-1">Dari</label>
@@ -24,13 +24,19 @@
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition">🔍 Filter</button>
-                        <a href="{{ route('reports.receipts', array_merge(request()->query(), ['export' => 1])) }}"
-                           class="px-6 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition">⬇ CSV</a>
-                    </form>
+            <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">Filter</button>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('reports.receipts', array_merge(request()->query(), ['format' => 'csv'])) }}"
+                   class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition text-sm font-medium">CSV</a>
+                <a href="{{ route('reports.receipts', array_merge(request()->query(), ['format' => 'xlsx'])) }}"
+                   class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 transition text-sm font-medium">Excel</a>
+                <a href="{{ route('reports.receipts', array_merge(request()->query(), ['format' => 'pdf'])) }}"
+                   class="px-4 py-2 bg-rose-50 text-rose-700 rounded-xl hover:bg-rose-100 transition text-sm font-medium">PDF</a>
+            </div>
+        </form>
     </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50">

@@ -12,7 +12,8 @@ except ImportError:
     print("FAIL: requests missing")
     sys.exit(2)
 
-BASE = "http://127.0.0.1:8000"
+import os
+BASE = os.environ.get("WMS_BASE_URL", f"http://127.0.0.1:{os.environ.get('APP_PORT', os.environ.get('PORT', '8100'))}")
 EMAIL = "superadmin@fazarth.my.id"
 PASSWORD = "superadmin123!"
 results = []

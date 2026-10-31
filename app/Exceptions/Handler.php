@@ -45,4 +45,22 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    /**
+     * Prefer readable Blade error pages (e.g. 403) over silent/default English shells.
+     */
+    public function render($request, Throwable $e)
+    {
+        if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface
+            && $e->getStatusCode() === 403
+            && ! $request->expectsJson()
+            && view()->exists('errors.403')
+        ) {
+            return response()->view('errors.403', [
+                'exception' => $e,
+            ], 403);
+        }
+
+        return parent::render($request, $e);
+    }
 }

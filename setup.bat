@@ -52,9 +52,10 @@ echo    Admin    : admin@koperasi.com / password
 echo    Pengurus : pengurus@koperasi.com / password
 echo    Anggota  : anggota@koperasi.com / password
 echo.
-echo 🚀 To start the application:
-echo    php artisan serve
+echo 🚀 To start the application (local APP_PORT default 8100):
+echo    scripts\start-local.sh
+echo    or: php artisan serve --host=127.0.0.1 --port=8100
 echo.
-echo 📱 Access at: http://localhost:8000
+echo 📱 Access at: http://127.0.0.1:8100
 echo.
 pause

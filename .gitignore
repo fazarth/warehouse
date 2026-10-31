@@ -19,3 +19,4 @@ yarn-error.log
 smoke_*_result.*
 smoke_*_result.txt
 smoke_*_result.json
+.smoke_tmp/

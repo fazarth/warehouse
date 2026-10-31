@@ -7,20 +7,20 @@
 <div class="max-w-2xl space-y-6">
     <a href="{{ route('putaways.index') }}" class="text-sm text-gray-500">← Daftar putaway</a>
 
-    <div class="bg-white rounded-2xl border p-6 space-y-2 text-sm">
+    <div class="bg-white rounded-xl border p-6 space-y-2 text-sm">
         <div class="flex justify-between"><span class="text-gray-500">Produk</span><span class="font-medium">{{ $putaway->product?->name }} ({{ $putaway->product?->sku }})</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Gudang</span><span>{{ $putaway->warehouse?->code }}</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Batch</span><span>{{ $putaway->batch_number ?? '—' }}</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Qty</span><span>{{ $putaway->quantity_done }}/{{ $putaway->quantity }}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Suggested</span><span class="font-mono text-teal-700">{{ $putaway->suggestedLocation?->code ?? '—' }}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Suggested</span><span class="font-mono text-indigo-700">{{ $putaway->suggestedLocation?->code ?? '—' }}</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Status</span><span>{{ $putaway->status }}</span></div>
         <div class="flex justify-between"><span class="text-gray-500">GR</span>
-            <a class="text-teal-600" href="{{ route('goods-receipts.show', $putaway->goods_receipt_id) }}">{{ $putaway->goodsReceipt?->receipt_number }}</a>
+            <a class="text-indigo-600" href="{{ route('goods-receipts.show', $putaway->goods_receipt_id) }}">{{ $putaway->goodsReceipt?->receipt_number }}</a>
         </div>
     </div>
 
     @if($putaway->status === 'pending')
-    <form method="POST" action="{{ route('putaways.complete', $putaway) }}" class="bg-white rounded-2xl border p-6 space-y-4">
+    <form method="POST" action="{{ route('putaways.complete', $putaway) }}" class="bg-white rounded-xl border p-6 space-y-4">
         @csrf
         <div>
             <label class="block text-sm font-medium mb-2">Target Bin *</label>
@@ -41,10 +41,10 @@
             <label class="block text-sm font-medium mb-2">Catatan</label>
             <input type="text" name="notes" class="w-full rounded-xl border-gray-200" value="{{ old('notes', $putaway->notes) }}">
         </div>
-        <button class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium">✓ Complete Put Away</button>
+        <button class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium">✓ Complete Put Away</button>
     </form>
     @else
-    <div class="bg-green-50 text-green-700 rounded-2xl p-4">Task selesai di bin <span class="font-mono">{{ $putaway->location?->code }}</span></div>
+    <div class="bg-green-50 text-green-700 rounded-xl p-4">Task selesai di bin <span class="font-mono">{{ $putaway->location?->code }}</span></div>
     @endif
 </div>
 @endsection

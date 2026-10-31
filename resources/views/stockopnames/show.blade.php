@@ -19,14 +19,14 @@
                         @can('stockopname.create')
                         <form action="{{ route('stockopnames.submit', $stockopname) }}" method="POST">
                             @csrf
-                            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition">📤 Submit</button>
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition">Submit</button>
                         </form>
                         @endcan
                         @elseif($stockopname->status === 'pending_approval')
                         @can('stockopname.approve')
                         <form action="{{ route('stockopnames.approve', $stockopname) }}" method="POST" class="inline" onsubmit="return confirm('Approve?')">
                             @csrf
-                            <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition">✓ Approve</button>
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition">Approve</button>
                         </form>
                         <form action="{{ route('stockopnames.reject', $stockopname) }}" method="POST" class="inline" onsubmit="return confirm('Reject?')">
                             @csrf
@@ -46,7 +46,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h3 class="font-bold text-gray-800 mb-4">Informasi</h3>
             <dl class="space-y-3 text-sm">
                 <div class="flex justify-between">
@@ -81,7 +81,7 @@
             @endif
         </div>
 
-        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h3 class="font-bold text-gray-800 mb-4">Daftar Item ({{ $stockopname->items->count() }})</h3>
             
             <div class="overflow-x-auto">

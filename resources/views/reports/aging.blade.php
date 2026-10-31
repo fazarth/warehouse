@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="space-y-6">
-    <form method="GET" class="flex flex-wrap gap-3 bg-white rounded-2xl border p-4">
+    <form method="GET" class="flex flex-wrap gap-3 bg-white rounded-xl border p-4">
         <select name="warehouse_id" class="rounded-xl border-gray-200 text-sm">
             <option value="">All warehouses</option>
             @foreach($warehouses as $wh)
@@ -19,13 +19,21 @@
             <option value="{{ $b }}" @selected($bucket===$b)>{{ $b }}</option>
             @endforeach
         </select>
-        <button class="px-4 py-2 bg-teal-600 text-white rounded-xl text-sm">Filter</button>
+        <button class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm">Filter</button>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('reports.aging', array_merge(request()->query(), ['format' => 'csv'])) }}"
+               class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition text-sm font-medium">CSV</a>
+            <a href="{{ route('reports.aging', array_merge(request()->query(), ['format' => 'xlsx'])) }}"
+               class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 transition text-sm font-medium">Excel</a>
+            <a href="{{ route('reports.aging', array_merge(request()->query(), ['format' => 'pdf'])) }}"
+               class="px-4 py-2 bg-rose-50 text-rose-700 rounded-xl hover:bg-rose-100 transition text-sm font-medium">PDF</a>
+        </div>
     </form>
 
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         @foreach($summary as $key => $stat)
         <a href="{{ route('reports.aging', array_filter(['warehouse_id'=>$warehouseId,'bucket'=>$key])) }}"
-           class="bg-white rounded-2xl border p-4 hover:border-teal-300 {{ $bucket===$key ? 'ring-2 ring-teal-500' : '' }}">
+           class="bg-white rounded-xl border p-4 hover:border-indigo-300 {{ $bucket===$key ? 'ring-2 ring-indigo-500' : '' }}">
             <div class="text-xs uppercase text-gray-400">{{ $key }}</div>
             <div class="text-2xl font-bold text-gray-800">{{ number_format($stat['qty']) }}</div>
             <div class="text-xs text-gray-400">{{ $stat['lines'] }} lines</div>
@@ -33,7 +41,7 @@
         @endforeach
     </div>
 
-    <div class="bg-white rounded-2xl border overflow-hidden">
+    <div class="bg-white rounded-xl border overflow-hidden">
         <table class="w-full text-sm">
             <thead class="bg-gray-50 text-xs uppercase text-gray-500">
                 <tr>

@@ -1,0 +1,56 @@
+# Enterprise WMS — local Docker against shared live-infra
+# Prerequisites:
+#   cd E:/Kerjaan/Code/Live && docker compose -p live-infra -f docker-compose.infra.yml up -d
+# Usage:
+#   cd E:/Kerjaan/Code/Live/warehouse
+#   docker compose up -d --build
+#   open http://127.0.0.1:8100/login
+
+services:
+  wms:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: live-wms:local
+    container_name: live-wms
+    restart: unless-stopped
+    ports:
+      - "8100:8100"
+    environment:
+      APP_NAME: "Enterprise WMS"
+      APP_ENV: production
+      APP_KEY: base64:lmGiCZOIPHQsvj3NjIT1p7FtrDH7XiAQC0HDcjiKT70=
+      APP_DEBUG: "false"
+      APP_URL: http://127.0.0.1:8100
+      LOG_CHANNEL: stderr
+      PORT: "8100"
+      DB_CONNECTION: mysql
+      DB_HOST: live-mysql
+      DB_PORT: "3306"
+      DB_DATABASE: warehouse
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+      CACHE_DRIVER: file
+      SESSION_DRIVER: file
+      QUEUE_CONNECTION: sync
+      REDIS_HOST: live-redis
+      REDIS_PORT: "6379"
+    networks:
+      - live-infra
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "php",
+          "-r",
+          "exit(@file_get_contents('http://127.0.0.1:8100/login')===false?1:0);",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 40s
+
+networks:
+  live-infra:
+    external: true
+    name: live-infra

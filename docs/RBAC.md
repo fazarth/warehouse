@@ -32,6 +32,7 @@ Source of truth:
 | Pengaturan Aplikasi | ✅ | ✅ | ❌ | ❌ |
 | Kelola User | ✅ | ✅ | ❌ | ❌ |
 | Kelola Role / Modul | ✅ | ❌ | ❌ | ❌ |
+| Audit Log | ✅ | ❌ | ❌ | ❌ |
 
 ## Action matrix
 
@@ -55,6 +56,35 @@ Floor only — **no** `product.view` / `location.view` (master pages closed).
 `goods_receipt.view|create`, `putaway.view|complete`, `goods_issue.view|create`, `stockopname.view|create`, `return.view|create`, `cycle_count.view|create`, `inventory.view`, `setting.view`
 
 Scan `/m/scan` resolves product/location via **auth session + direct model lookup** (not master list routes).
+
+## Audit Log (Super Admin only)
+
+- Permission: **`audit.view`**
+- Routes: `/admin/audit-logs` · `/admin/audit-logs/{id}`
+- Menu: **Administrasi → Audit Log**
+- Grants: Super Admin only (Admin Gudang / Supervisor / Operator = **403**, no menu)
+- Events: `auth.login` · `auth.login_failed` · `auth.logout` · `admin.user.*` · `admin.role.permissions_update` · `admin.module.toggle` · `ops.gr.*` · `ops.gi.*` · `ops.putaway.complete` · `ops.so.*` · `ops.cycle.*` · `ops.return.*` · `master.product.*` · `master.supplier.*` · `master.warehouse.*` · `report.export`
+- Secrets in payload: password/token fields **redacted**
+- Export audit: `?format=csv|xlsx|pdf` (Super Admin)
+
+## Reports export
+
+- Surfaces: receipts / issues / stock / mutations / low-stock
+- Formats: **CSV · Excel (xlsx) · PDF** via `?format=`
+- Backward compatible: `?export=1` → CSV
+- Each export writes `report.export` audit event
+
+## Master import
+
+| Entity | UI | Template | Perm |
+|--------|----|----------|------|
+| Product | `/products/import` | `/products/import-template` | `product.create` |
+| Supplier | `/suppliers/import` | `/suppliers/import-template` | `supplier.create` |
+| Warehouse | `/warehouses/import` | `/warehouses/import-template` | `warehouse.create` |
+
+- Formats: CSV / XLSX · **master only** (no stock mutation / no bin hierarchy auto-create)
+- Optional update-existing by SKU/code
+- Aging report also supports `?format=csv|xlsx|pdf`
 
 ## Reseed
 

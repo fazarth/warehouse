@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -54,10 +55,21 @@ class RoleController extends Controller
             'permissions.*' => ['string', 'exists:permissions,name'],
         ]);
 
+        $before = $role->permissions->pluck('name')->sort()->values()->all();
         $permissions = $validated['permissions'] ?? [];
         $role->syncPermissions($permissions);
+        $after = $role->fresh()->permissions->pluck('name')->sort()->values()->all();
 
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        AuditLog::log(
+            'admin.role.permissions_update',
+            Role::class,
+            $role->id,
+            "Permission role {$role->name} diperbarui",
+            ['permissions' => $before],
+            ['permissions' => $after]
+        );
 
         return redirect()->route('admin.roles.index')
             ->with('success', "Permission untuk role {$role->name} berhasil diperbarui!");

@@ -8,7 +8,9 @@ if [ -z "${APP_KEY:-}" ]; then
   echo "Generated ephemeral APP_KEY for this container boot"
 fi
 
-# Railway injects PORT; default 8080 for proxy friendliness
+# Production/Railway injects PORT (keep host-provided). Image fallback 8080.
+# Local host PHP (not this container script): APP_PORT/PORT default 8100 — see Live/PORTS.md
+# and scripts/start-local.sh. Do not hardcode 8100 here; leave production-friendly.
 PORT="${PORT:-8080}"
 
 php artisan config:clear || true

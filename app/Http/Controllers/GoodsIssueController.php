@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\GoodsIssue;
 use App\Models\GoodsIssueItem;
 use App\Models\Product;
@@ -114,14 +115,27 @@ class GoodsIssueController extends Controller
                 }
 
                 return $issue;
-            });
+                            });
 
-            return redirect()->route('goods-issues.show', $issue)
-                ->with('success', 'DO/GI '.$issue->issue_number.' dibuat. Lanjut alokasi FEFO.');
-        } catch (\Throwable $e) {
-            return back()->withInput()->with('error', 'Gagal menyimpan: '.$e->getMessage());
-        }
-    }
+                            AuditLog::log(
+                                'ops.gi.create',
+                                GoodsIssue::class,
+                                $issue->id,
+                                'GI dibuat: '.$issue->issue_number,
+                                null,
+                                [
+                                    'issue_number' => $issue->issue_number,
+                                    'destination' => $issue->destination,
+                                    'items' => count($validated['items']),
+                                ]
+                            );
+
+                            return redirect()->route('goods-issues.show', $issue)
+                                ->with('success', 'DO/GI '.$issue->issue_number.' dibuat. Lanjut alokasi FEFO.');
+                        } catch (\Throwable $e) {
+                            return back()->withInput()->with('error', 'Gagal menyimpan: '.$e->getMessage());
+                        }
+                    }
 
     public function show(GoodsIssue $goodsIssue)
     {
@@ -136,50 +150,77 @@ class GoodsIssueController extends Controller
     }
 
     public function allocate(GoodsIssue $goodsIssue)
-    {
-        try {
-            $n = $this->fefo->allocate($goodsIssue, auth()->id());
+        {
+            try {
+                $before = $goodsIssue->status;
+                $n = $this->fefo->allocate($goodsIssue, auth()->id());
+                AuditLog::log(
+                    'ops.gi.allocate',
+                    GoodsIssue::class,
+                    $goodsIssue->id,
+                    "GI allocate FEFO: {$goodsIssue->issue_number} ({$n} lines)",
+                    ['status' => $before],
+                    ['status' => $goodsIssue->fresh()->status, 'pick_lines' => $n]
+                );
 
-            return back()->with('success', "FEFO allocate: {$n} pick line(s).");
-        } catch (\Throwable $e) {
-            return back()->with('error', $e->getMessage());
+                return back()->with('success', "FEFO allocate: {$n} pick line(s).");
+            } catch (\Throwable $e) {
+                return back()->with('error', $e->getMessage());
+            }
         }
-    }
 
-    public function pick(Request $request, GoodsIssue $goodsIssue)
-    {
-        $validated = $request->validate([
-            'lines' => 'nullable|array',
-            'lines.*' => 'integer|min:0',
-        ]);
+        public function pick(Request $request, GoodsIssue $goodsIssue)
+        {
+            $validated = $request->validate([
+                'lines' => 'nullable|array',
+                'lines.*' => 'integer|min:0',
+            ]);
 
-        try {
-            $this->fefo->completePicking(
-                $goodsIssue,
-                $validated['lines'] ?? [],
-                auth()->id()
-            );
+            try {
+                $before = $goodsIssue->status;
+                $this->fefo->completePicking(
+                    $goodsIssue,
+                    $validated['lines'] ?? [],
+                    auth()->id()
+                );
+                AuditLog::log(
+                    'ops.gi.pick',
+                    GoodsIssue::class,
+                    $goodsIssue->id,
+                    'GI picking: '.$goodsIssue->issue_number,
+                    ['status' => $before],
+                    ['status' => $goodsIssue->fresh()->status]
+                );
 
-            return back()->with('success', 'Picking selesai → packing.');
-        } catch (\Throwable $e) {
-            return back()->with('error', $e->getMessage());
+                return back()->with('success', 'Picking selesai → packing.');
+            } catch (\Throwable $e) {
+                return back()->with('error', $e->getMessage());
+            }
         }
-    }
 
-    public function pack(Request $request, GoodsIssue $goodsIssue)
-    {
-        $validated = $request->validate([
-            'notes' => 'nullable|string|max:255',
-        ]);
+        public function pack(Request $request, GoodsIssue $goodsIssue)
+        {
+            $validated = $request->validate([
+                'notes' => 'nullable|string|max:255',
+            ]);
 
-        try {
-            $pkg = $this->fefo->pack($goodsIssue, $validated['notes'] ?? null, auth()->id());
+            try {
+                $before = $goodsIssue->status;
+                $pkg = $this->fefo->pack($goodsIssue, $validated['notes'] ?? null, auth()->id());
+                AuditLog::log(
+                    'ops.gi.pack',
+                    GoodsIssue::class,
+                    $goodsIssue->id,
+                    'GI pack: '.$goodsIssue->issue_number.' → '.$pkg->package_number,
+                    ['status' => $before],
+                    ['status' => $goodsIssue->fresh()->status, 'package' => $pkg->package_number]
+                );
 
-            return back()->with('success', 'Packed: '.$pkg->package_number);
-        } catch (\Throwable $e) {
-            return back()->with('error', $e->getMessage());
+                return back()->with('success', 'Packed: '.$pkg->package_number);
+            } catch (\Throwable $e) {
+                return back()->with('error', $e->getMessage());
+            }
         }
-    }
 
     public function ship(Request $request, GoodsIssue $goodsIssue)
         {
@@ -202,27 +243,49 @@ class GoodsIssueController extends Controller
                 $goodsIssue->refresh();
             }
 
-            $this->fefo->ship(
-                $goodsIssue->fresh(),
-                $validated['carrier'] ?? null,
-                $validated['tracking_number'] ?? null,
-                auth()->id()
-            );
+            $before = $goodsIssue->status;
+                        $this->fefo->ship(
+                            $goodsIssue->fresh(),
+                            $validated['carrier'] ?? null,
+                            $validated['tracking_number'] ?? null,
+                            auth()->id()
+                        );
+                        AuditLog::log(
+                            'ops.gi.ship',
+                            GoodsIssue::class,
+                            $goodsIssue->id,
+                            'GI shipped: '.$goodsIssue->issue_number,
+                            ['status' => $before],
+                            [
+                                'status' => $goodsIssue->fresh()->status,
+                                'carrier' => $validated['carrier'] ?? null,
+                                'tracking_number' => $validated['tracking_number'] ?? null,
+                                'auto_pipeline' => $request->boolean('auto_pipeline'),
+                            ]
+                        );
 
-            return back()->with('success', 'Barang shipped; stok bin dikurangi (FEFO).');
-        } catch (\Throwable $e) {
-            return back()->with('error', 'Gagal ship: '.$e->getMessage());
-        }
-    }
+                        return back()->with('success', 'Barang shipped; stok bin dikurangi (FEFO).');
+                    } catch (\Throwable $e) {
+                        return back()->with('error', 'Gagal ship: '.$e->getMessage());
+                    }
+                }
 
-    public function deliver(GoodsIssue $goodsIssue)
-    {
-        if ($goodsIssue->status !== 'shipped') {
-            return back()->with('error', 'Status pengiriman tidak valid.');
-        }
+                public function deliver(GoodsIssue $goodsIssue)
+                {
+                    if ($goodsIssue->status !== 'shipped') {
+                        return back()->with('error', 'Status pengiriman tidak valid.');
+                    }
 
-        $goodsIssue->update(['status' => 'delivered']);
+                    $goodsIssue->update(['status' => 'delivered']);
+                    AuditLog::log(
+                        'ops.gi.deliver',
+                        GoodsIssue::class,
+                        $goodsIssue->id,
+                        'GI delivered: '.$goodsIssue->issue_number,
+                        ['status' => 'shipped'],
+                        ['status' => 'delivered']
+                    );
 
-        return back()->with('success', 'Pengiriman dikonfirmasi delivered.');
-    }
-}
+                    return back()->with('success', 'Pengiriman dikonfirmasi delivered.');
+                }
+            }

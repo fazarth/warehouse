@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\GoodsIssue;
 use App\Models\Location;
 use App\Models\Product;
@@ -69,6 +70,19 @@ class StockReturnController extends Controller
                 auth()->id()
             );
 
+            AuditLog::log(
+                'ops.return.create',
+                StockReturn::class,
+                $return->id,
+                'Return dibuat: '.$return->return_number,
+                null,
+                [
+                    'return_number' => $return->return_number,
+                    'source' => $return->source ?? ($validated['source'] ?? null),
+                    'items' => count($validated['items']),
+                ]
+            );
+
             return redirect()->route('returns.show', $return)
                 ->with('success', 'Return '.$return->return_number.' dibuat (draft).');
         } catch (\Throwable $e) {
@@ -86,7 +100,16 @@ class StockReturnController extends Controller
     public function receive(StockReturn $return)
     {
         try {
+            $before = $return->status;
             $this->returns->receive($return, auth()->id());
+            AuditLog::log(
+                'ops.return.receive',
+                StockReturn::class,
+                $return->id,
+                'Return diterima: '.$return->return_number,
+                ['status' => $before],
+                ['status' => $return->fresh()->status]
+            );
 
             return back()->with('success', 'Return diterima; stok bin bertambah.');
         } catch (\Throwable $e) {

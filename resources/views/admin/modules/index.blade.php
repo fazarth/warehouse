@@ -7,10 +7,10 @@
 @section('content')
 <div class="space-y-6">
     <!-- Modules Grid -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 bg-gradient-to-r from-teal-50 to-emerald-50 border-b border-teal-100">
-            <h3 class="font-bold text-teal-800 flex items-center gap-2">
-                <span class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center text-sm">🧩</span>
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                <span class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-sm">🧩</span>
                 Daftar Modul
             </h3>
         </div>
@@ -22,7 +22,7 @@
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl
-                                {{ $module->is_accessible ? 'bg-teal-100' : 'bg-gray-100' }}">
+                                {{ $module->is_accessible ? 'bg-indigo-50' : 'bg-gray-100' }}">
                                 {{ $module->icon }}
                             </div>
                             <div>
@@ -48,7 +48,7 @@
                             @method('PATCH')
                             <button type="submit" 
                                     class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                                        {{ $module->is_enabled ? 'bg-teal-500' : 'bg-gray-300' }}"
+                                        {{ $module->is_enabled ? 'bg-indigo-500' : 'bg-gray-300' }}"
                                     title="{{ $module->is_enabled ? 'Klik untuk nonaktifkan' : 'Klik untuk aktifkan' }}">
                                 <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform
                                     {{ $module->is_enabled ? 'translate-x-6' : 'translate-x-1' }}">
@@ -56,7 +56,7 @@
                             </button>
                         </form>
                         @elseif($module->is_core)
-                        <div class="text-teal-500 text-sm font-medium">✓ Aktif</div>
+                        <div class="text-indigo-500 text-sm font-medium">✓ Aktif</div>
                         @else
                         <div class="text-gray-400 text-xs">🔒</div>
                         @endif

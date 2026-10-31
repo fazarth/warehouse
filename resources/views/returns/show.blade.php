@@ -14,7 +14,7 @@
             @if($return->status === 'draft')
             <form method="POST" action="{{ route('returns.receive', $return) }}" onsubmit="return confirm('Receive return ke stok?')">
                 @csrf
-                <button class="px-4 py-2 bg-green-600 text-white rounded-xl text-sm">✓ Receive</button>
+                <button class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm">Receive</button>
             </form>
             @endif
             <span class="px-3 py-2 rounded-xl text-sm {{ $return->status==='received'?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700' }}">{{ $return->status }}</span>
@@ -22,7 +22,7 @@
     </div>
 
     <div class="grid lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-2xl border p-6 text-sm space-y-2">
+        <div class="bg-white rounded-xl border p-6 text-sm space-y-2">
             <div class="flex justify-between"><span class="text-gray-500">GI</span><span>{{ $return->goodsIssue?->issue_number ?? '—' }}</span></div>
             <div class="flex justify-between"><span class="text-gray-500">Reason</span><span>{{ $return->reason ?? '—' }}</span></div>
             <div class="flex justify-between"><span class="text-gray-500">Default bin</span><span class="font-mono">{{ $return->location?->code ?? '—' }}</span></div>
@@ -32,7 +32,7 @@
             @endif
             @if($return->notes)<p class="pt-2 border-t text-gray-600">{{ $return->notes }}</p>@endif
         </div>
-        <div class="lg:col-span-2 bg-white rounded-2xl border p-6">
+        <div class="lg:col-span-2 bg-white rounded-xl border p-6">
             <h3 class="font-bold mb-3">Items</h3>
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500">

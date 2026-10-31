@@ -7,7 +7,7 @@
 <div x-data="poForm()">
     <form method="POST" action="{{ route('purchase-orders.store') }}" class="space-y-6">
         @csrf
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 grid md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 grid md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-2">Supplier *</label>
                 <select name="supplier_id" required class="w-full rounded-xl border-gray-200">
@@ -31,10 +31,10 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <div class="flex justify-between mb-4">
                 <h3 class="font-bold">Items</h3>
-                <button type="button" @click="addItem()" class="px-3 py-2 bg-teal-100 text-teal-700 rounded-xl text-sm">➕ Item</button>
+                <button type="button" @click="addItem()" class="px-3 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-sm">+ Item</button>
             </div>
             <table class="w-full">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500">
@@ -73,7 +73,7 @@
 
         <div class="flex justify-end gap-3">
             <a href="{{ route('purchase-orders.index') }}" class="px-4 py-2 rounded-xl bg-gray-100">Batal</a>
-            <button class="px-4 py-2 rounded-xl bg-teal-600 text-white">Simpan PO</button>
+            <button class="px-4 py-2 rounded-xl bg-indigo-600 text-white">Simpan PO</button>
         </div>
     </form>
 </div>
